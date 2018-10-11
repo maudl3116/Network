@@ -1,4 +1,3 @@
-
 install.packages("igraph")
 library(igraph)
 
@@ -8,8 +7,6 @@ generate_graph <- function(n=50,p=0.1){
   A <- as.matrix(get.adjacency(g, type="lower"))
   A
 }
-
-
 
 interact <- function(A,alpha=0.6,beta=0.009, n=50,k){
 
@@ -25,6 +22,7 @@ interact <- function(A,alpha=0.6,beta=0.009, n=50,k){
 
 }
 
+# EM steps
 
 maximise <- function(Q,n,k,E){
   alpha <- sum(E*Q)/(k*sum(Q)) # division by 2 cancels out
@@ -63,4 +61,6 @@ E <- interact(A,alpha=0.6,beta=0.009, n=50,k=5)
 
 simulation1 <- EM(alpha0=0.4, beta0=0.02, rho0=0.15, n=50, k=5, E)
 simulation1
+# test
+
 

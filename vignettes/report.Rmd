@@ -1,0 +1,22 @@
+---
+title: "Network structure from rich but noisy data"
+author: Natalia Garcia Martin & Maud Lemercier
+date: "`r Sys.Date()`"
+output: 
+  rmarkdown::pdf_document:
+      extra_dependencies: ["stmaryrd","color"]
+      number_sections: true
+vignette: >
+  %\VignetteIndexEntry{Vignette Title}
+  %\VignetteEngine{knitr::rmarkdown}
+  \usepackage[utf8]{inputenc}
+  
+---
+# Erdos–Renyi Model
+## Inference via the Expectation Maximization algorithm
+## Experiments
+
+# Extension to other Exponential Random Graph Models
+## Exponential Random Graph Models
+## Inference
+## Experiments

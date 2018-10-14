@@ -15,7 +15,7 @@ if(!require(igraph)){
 #' sampleErdosRenyi_function()
 sampleErdosRenyi <- function(n=50,p=0.1){
   g <- erdos.renyi.game(n, p, type = c("gnp"), directed=FALSE, loops=FALSE)
-  plot(g, layout=layout.auto, vertex.size=6, vertex.label=NA, edge.arrow.size=0.2,vertex.color="light blue")
+  #plot(g, layout=layout.auto, vertex.size=6, vertex.label=NA, edge.arrow.size=0.2,vertex.color="light blue")
   A <- as.matrix(get.adjacency(g, type="lower"))
   list(A,g)
 }

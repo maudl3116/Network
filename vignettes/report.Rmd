@@ -13,7 +13,7 @@ vignette: >
 abstract: "We have implemented an R package to estimate the parameters of exponential random graph models (ERG models), in the case where the data consists of noisy observations of the underlying hidden structure. The first part of this report focusses on the Bernouilli (or Erdos Renyi) model, performing inference via the Expectation Maximization algorithm, while the second part explores other ERG models, for which Bayesian parameter estimation is more challenging."  
 ---
 # Introduction
-## Motivation
+## Problem formulation
 The true network structure is drawn from $P(A|\theta)$. We will later constrain this distribution to belong to the exponential random graph models family. The observations of the network are supposed to be noisy. The network structure and the observations are related to one another by $P(data|A,\theta)$. Our aim is to infer the parameters $\theta$ through the posterior distribution $P(\theta|data)$. This is challenging, since it involves marginalising over the hidden variables (as shown on equation), leading to intractable computations. 
 
 ```{r pressure, echo=FALSE, out.width = '50%'}
@@ -39,6 +39,39 @@ $$P_{\theta}(A=a)=exp\left(\sum_{i=1}^k{\theta_iT_i(a)-c(\theta)}\right)$$
 ## Experiments and results
 
 ### Tests on simulated data
+
+**Dataset**
+
+In this section, we propose to validate the model’s estimates using a synthetic dataset for which the ground truth network and the noisy observations are generated via a predefined probabilistic model. We simulate a network with `r n=50` $n=$ `r n` vertices, and we set $\rho=$ `r rho=0.1` `r rho`. The noisy observations are then simulated for $k=$ `r k=10` `r k` days, with true positive rate $\alpha=$ `r alpha=0.6` `r alpha` and false positive rate $\beta=$ `r beta=0.009` `r beta`. Our stopping criterium is met when the absolute value of the difference of all parameter values after an iteration is less than $\epsilon=$ `r epsilon=0.001` `r epsilon`. 
+
+```{r echo=FALSE, results='hide',fig.keep='none'}
+   # generate ground truth network
+  output <- sampleErdosRenyi(n,rho)
+  g <- output[[2]]
+  A <- output[[1]]
+
+  # generate noisy observations of the ground truth network
+  E <- interact(A,alpha,beta, n,k)
+  simulation <- EM(alpha0=0.4, beta0=0.02, rho0=0.15, n, k, E)
+```
+
+**Results**
+
+In this setting, the stopping criterium is met after `r simulation[5]` iterations. The figure below, shows the comparison of the ground truth network with the inferred network (obtained by thresholding the posterior probabilities at $t=$ `r t=0.5` `r t`), where the size of the nodes is proportional to their degree. 
+
+```{r echo=FALSE}
+  out=analyse_results(t)
+```
+
+
+$\begin{tabular}{|c|c|}\hline Precision & `r out$Precision` \\ \hline Recall & `r out$Recall` \\ \hline Accuracy & `r out$Accuracy` \\ \hline F-measure & `r out$F_measure` \\ \hline\end{tabular}$
+
+The figure below shows the influence of the number of observations $k$ on the performances of the algorithm. 
+
+```{r echo=FALSE}
+F_measure_plot(20,n)
+```
+
 
 ### Tests on real data
 

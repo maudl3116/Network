@@ -4,12 +4,10 @@
 \alias{ERGM}
 \title{This function generates a graph from an ERGM}
 \usage{
-ERGM(n = 50, p = 0.1)
+ERGM(n, param)
 }
 \arguments{
 \item{n}{The number of nodes in the network}
-
-\item{p}{The probability of having an edge at any position (i,j)}
 }
 \description{
 This function generates a graph from an ERGM

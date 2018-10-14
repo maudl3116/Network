@@ -2,7 +2,7 @@
 % Please edit documentation in R/data_generator.R
 \name{interact}
 \alias{interact}
-\title{This function generates data (observations)}
+\title{This function generates noisy data}
 \usage{
 interact(A, alpha = 0.6, beta = 0.009, n = 50, k)
 }
@@ -18,5 +18,5 @@ interact(A, alpha = 0.6, beta = 0.009, n = 50, k)
 \item{k}{The number of observations for each pair (i,j)}
 }
 \description{
-This function generates data (observations)
+This function generates noisy data
 }

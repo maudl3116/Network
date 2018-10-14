@@ -14,27 +14,39 @@ abstract: "We have implemented an R package to estimate the parameters of expone
 ---
 # Introduction
 ## Problem formulation
-The true network structure is drawn from $P(A|\theta)$. We will later constrain this distribution to belong to the exponential random graph models family. The observations of the network are supposed to be noisy. The network structure and the observations are related to one another by $P(data|A,\theta)$. Our aim is to infer the parameters $\theta$ through the posterior distribution $P(\theta|data)$. This is challenging, since it involves marginalising over the hidden variables (as shown on equation), leading to intractable computations. 
+The true network structure is drawn from $P(A|\theta)$. We will later constrain this distribution to belong to the exponential random graph models family. The observations of the network are supposed to be noisy. The network structure and the observations are related to one another by $P(data|A,\theta)$. Our aim is to infer the parameters $\theta$ through the posterior distribution $P(\theta|data)$. $$P(\theta|data)\propto \sum_AP(data|A,\theta)P(A|\theta)P(\theta)$$ This optimisation problem is hard since it is often non convex, might have many local maxima and no analytical solutions. In our model, as illustrated on the figure below, we have two unknowns: the latent variables and the parameters. 
 
 ```{r pressure, echo=FALSE, out.width = '50%'}
 knitr::include_graphics("GM1.png")
 ```
 
 
-$$\begin{split}P(\theta|data)&\propto P(data|\theta)P(\theta)\\ & \propto \sum_AP(data,A|\theta)P(\theta)\\ &\propto \sum_AP(data|A,\theta)P(A|\theta)P(\theta) \end{split}$$
+
 
 ## Models
 
 ### Bernouilli
 Let $\rho$ be the probability of an edge in any position. Then, the Bernouilli model is defined by:
-$$P(A|\rho)=\prod_{i<j}\rho^{A_{i,j}}(1-\rho)^{A_{i,j}}$$
+$$P(A|\rho)=\prod_{i<j}\rho^{A_{i,j}}(1-\rho)^{1-A_{i,j}}$$
 
 ### Generalisation 
-$$P_{\theta}(A=a)=exp\left(\sum_{i=1}^k{\theta_iT_i(a)-c(\theta)}\right)$$
+$$P(A=a|\theta)=exp\left(\sum_{i=1}^k{\theta_iT_i(a)-c(\theta)}\right)$$
 
 # Inference for the Bernouilli model
+## Expectation Maximization algorithm
 
-## Inference via the Expectation Maximization algorithm
+**E-step**
+
+The expectation step consists in updating the posterior probabilities with the previous estimates of the parameters. 
+
+$$q^{(t)}(A)=\frac{p(A,\hat{\theta}^{(t)}|data)}{\sum_A{p(A,\hat{\theta}^{(t)}|data)}}$$
+**M-step**
+
+The maximisation step consists in solving the tractable optimisation problem: 
+$$\sum_Aq^{(t)}(A)\nabla_\theta log~{p(A,\hat{\theta}^{(t+1)}|data)}=0$$
+With the Bernouilli model, the maximisation step is tractable, since we have: 
+$$\begin{split}p(A,\theta|data)&=\frac{1}{p(data)}\left(\alpha^{\sum_{k}Y_{i,j}^{(k)}}(1-\alpha)^{N_{i,j}-\sum_kY_{i,j}^{(k)}}\right)^{A_{i,j}}\left(\beta^{\sum_kY_{i,j}^{(k)}}(1-\beta)^{N_{i,j}-\sum_kY_{i,j}^{(k)}}\right)^{1-A_{i,j}}p(A)p(\theta)\end{split}$$
+
 
 ## Experiments and results
 

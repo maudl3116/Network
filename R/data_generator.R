@@ -17,18 +17,20 @@ sampleErdosRenyi <- function(n=50,p=0.1){
   g <- erdos.renyi.game(n, p, type = c("gnp"), directed=FALSE, loops=FALSE)
   plot(g, layout=layout.auto, vertex.size=6, vertex.label=NA, edge.arrow.size=0.2,vertex.color="light blue")
   A <- as.matrix(get.adjacency(g, type="lower"))
-  A
+  list(A,g)
 }
 
 #' This function generates a graph from an ERGM
 #' @param n The number of nodes in the network
-#' @param p The probability of having an edge at any position (i,j)
-#' @examples
-ERGM <- function(n=50,p=0.1){
-  # to do
+
+ERGM <- function(n, param){
+  # network to initialise the MCMC algorithm
+  g0 <- network(n,directed=FALSE)
+  g <- simulate(~edges+triangles, nsim=1, coef=param, basis=g0, control=control.simulate(MCMC.burnin=100,MCMC.interval=100))
+  plot(g, vertex.size=6, vertex.label=NA, edge.arrow.size=0.2,vertex.color="light blue")
 }
 
-#' This function generates data (observations)
+#' This function generates noisy data
 #' @param A The underlying ERGM
 #' @param alpha The true positive rate, i.e. the probability of observing an edge at (i,j) when A_{(i,j)}=1
 #' @param beta The false positive rate, i.e. the probability of observing an edge at (i,j) when A_{(i,j)}=0

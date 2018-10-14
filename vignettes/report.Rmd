@@ -18,5 +18,42 @@ vignette: >
 
 # Extension to other Exponential Random Graph Models
 ## Exponential Random Graph Models
+
+### Resulting Model
+We still assume that the data $y$ consists of noisy or incomplete observations of the underlying hidden structure $x$.
+
+```{r pressure, echo=FALSE, out.width = '50%'}
+knitr::include_graphics("GM1.png")
+```
+
+
 ## Inference
+TO DO: explain why we will not use the EM algorithm.
+
+The aim of this section is to discuss how a bayesian estimation of the parameters $\theta=\{\theta_x, \theta_y\}$ can be performed. In our case, we cannot use a vanilla Metropolis Hastings algorithm with $p(\theta|y)$ as a target distribution, for the following reasons:
+
+* The normalising constant $Z(\theta)$ is intractable. This problem is would also arise in the case where the network is completely observed. 
+
+* The likelihood appearing in the acceptance ratio is intractable, since we would have to sum over all the states that the hidden variable $x$ can take, with $x$ a binary vector of size $n$.
+
+
+$$\alpha_{MH}(\theta,\theta')= 1 \land \frac{p(y|\theta')p(\theta')q(\theta|\theta')}{p(y|\theta)p(\theta)q(\theta'|\theta)}$$
+
+$$p(y|\theta)=\sum_xp(y|\theta,x)p(x|\theta) $$
+## To be discussed
+
+* Do we care about the posterior distribution of the hidden variables? As in the EM algorithm ??
+
+
+
 ## Experiments
+
+## Task split for Sunday
+
+* Natalia: 
+  + investigate more our results for part I
+  + write part I
+  
+* Maud:
+  + come up with an approach for part II: test existing libraries (Bergm,matlab code...)
+  + write the progress on part II

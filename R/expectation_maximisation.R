@@ -25,7 +25,7 @@ EM <- function(alpha0, beta0, rho0, n, k, E){
     beta <- out[2]
     rho <- out[3]
   }
-  out <- c(Q,alpha,beta,rho)
+  out <- list(Q,alpha,beta,rho)
 }
 
 

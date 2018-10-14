@@ -7,7 +7,7 @@ if(!require(igraph)){
   install.packages("somepackage")
 }
 
-g <- erdos.renyi.game(n=50,p=0.1, type = c("gnp"), directed=FALSE, loops=FALSE)
+g <- sampleErdosRenyi(n=50,p=0.1)[[2]]
 sim1 <- as.matrix(simulation1)[[1]]
 
 # Remove weights from simulated A
@@ -31,7 +31,7 @@ l=layout=layout.auto(g)
 degg <- degree(g, mode="total")
 plot(g, layout=l, vertex.size=degg*2, vertex.label=NA, edge.arrow.size=0.2,vertex.color="light blue")
 deggraph <- degree(graph, mode="total")
-plot(graph, layout=l, vertex.size=degg*2, vertex.label=NA, edge.arrow.size=0.2,vertex.color="coral")
+plot(graph, layout=l, vertex.size=deggraph*2, vertex.label=NA, edge.arrow.size=0.2,vertex.color="coral")
 par(mfrow=c(1,1))
 
 # Calculate proportion of edges correctly identified by the algorithm

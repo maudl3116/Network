@@ -21,8 +21,9 @@ EM <- function(alpha0, beta0, rho0, n, k, E){
   rho = rho0
   prev=c(alpha, beta, rho)
   out=c(Inf,Inf,Inf)
+  mat=matrix(0,200,3)
   nIter=0
-  while(!all(abs(prev-out)<c(threshold,threshold,threshold))){
+  while(!all(abs(prev-out)<c(threshold,threshold,threshold)) & nIter<200){
     nIter=nIter+1
     prev <- c(alpha, beta, rho)
     Q <- expectation(alpha, beta, rho, E, k)
@@ -30,8 +31,9 @@ EM <- function(alpha0, beta0, rho0, n, k, E){
     alpha <- out[1]
     beta <- out[2]
     rho <- out[3]
+    mat[nIter,]=c(alpha, beta, rho)
   }
-  out <- list(Q,alpha,beta,rho,nIter)
+  out <- list(Q,alpha,beta,rho,nIter,mat)
 }
 
 

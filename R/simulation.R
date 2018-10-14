@@ -19,7 +19,7 @@ simulate_infer=function(n=50,k=10,p=0.1,alpha=0.6, beta=0.009){
 
 analyse_results = function(theta=0.5, n=50, k=10, p=0.1, alpha=0.6, beta=0.009){
 
-  simulate <- simulate_infer(n, k, p=0.1, alpha=0.6, beta=0.009)
+  simulate <- simulate_infer(n, k, p, alpha, beta)
   g <- simulate[[1]]
   A <- simulate[[2]]
   E <- simulate[[3]]
@@ -64,4 +64,4 @@ analyse_results = function(theta=0.5, n=50, k=10, p=0.1, alpha=0.6, beta=0.009){
   F_measure <- 2/ ((1 / Precision) + (1 / Recall) )
 
   out <- list("Precision"=Precision,"Recall"=Recall,"Accuracy"=Accuracy,"Error"=Error,"F_measure"=F_measure)
-}
+  }

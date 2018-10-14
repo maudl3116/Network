@@ -1,5 +1,5 @@
 
-convergence <- function (N=200, alpha0=0.5, beta0=0.05, rho0=0.2, n=50, k=10, E){
+convergence <- function (N=20, alpha0=0.5, beta0=0.05, rho0=0.2, n=50, k=10){
   E <- simulate_infer()[[3]]
   matrix=matrix(0,N,3)
   alpha = alpha0

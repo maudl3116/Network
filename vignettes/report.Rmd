@@ -6,6 +6,9 @@ output:
   rmarkdown::pdf_document:
       extra_dependencies: ["stmaryrd","color"]
       number_sections: true
+      fig_caption: yes
+      keep_tex: yes
+header-includes: \usepackage{float}
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
@@ -14,13 +17,12 @@ abstract: "We have implemented an R package to estimate the parameters of expone
 ---
 # Introduction
 ## Problem formulation
-The true network structure is drawn from $P(A|\theta)$. We will later constrain this distribution to belong to the exponential random graph models family. The observations of the network are supposed to be noisy. The network structure and the observations are related to one another by $P(data|A,\theta)$. Our aim is to infer the parameters $\theta$ through the posterior distribution $P(\theta|data)$. $$P(\theta|data)\propto \sum_AP(data|A,\theta)P(A|\theta)P(\theta)$$ This optimisation problem is hard since it is often non convex, might have many local maxima and no analytical solutions. In our model, as illustrated on the figure below, we have two unknowns: the latent variables and the parameters. 
+The true network structure is drawn from $P(A|\theta)$. We will later constrain this distribution to belong to the exponential random graph models family. The observations of the network are supposed to be noisy. The network structure and the observations are related to one another by $P(data|A,\theta)$. Our aim is to infer the parameters $\theta$ through the posterior distribution $P(\theta|data)$. $$P(\theta|data)\propto \sum_AP(data|A,\theta)P(A|\theta)P(\theta)$$ This optimisation problem is hard since it is often non convex, might have many local maxima and no analytical solutions. In our model, as illustrated on Figure \ref{fig:figs}, we have two unknowns: the latent variables and the parameters. We also suppose that the underlying network is probed $k$ times.  
 
-```{r pressure, echo=FALSE, out.width = '50%'}
-knitr::include_graphics("GM1.png")
+```{r pressure, echo=FALSE, fig.pos="H", out.width = '65%',fig.cap="\\label{fig:figs}Graphical Model"}
+knitr::include_graphics("GM2.png")
+
 ```
-
-
 
 
 ## Models
@@ -45,7 +47,9 @@ $$q^{(t)}(A)=\frac{p(A,\hat{\theta}^{(t)}|data)}{\sum_A{p(A,\hat{\theta}^{(t)}|d
 The maximisation step consists in solving the tractable optimisation problem: 
 $$\sum_Aq^{(t)}(A)\nabla_\theta log~{p(A,\hat{\theta}^{(t+1)}|data)}=0$$
 With the Bernouilli model, the maximisation step is tractable, since we have: 
-$$\begin{split}p(A,\theta|data)&=\frac{1}{p(data)}\left(\alpha^{\sum_{k}Y_{i,j}^{(k)}}(1-\alpha)^{N_{i,j}-\sum_kY_{i,j}^{(k)}}\right)^{A_{i,j}}\left(\beta^{\sum_kY_{i,j}^{(k)}}(1-\beta)^{N_{i,j}-\sum_kY_{i,j}^{(k)}}\right)^{1-A_{i,j}}p(A)p(\theta)\end{split}$$
+$$\begin{split}P(A,\theta|data)&=\frac{1}{P(data)}\prod_{i<j}\left(\alpha^{\sum_{k}Y_{i,j}^{(k)}}(1-\alpha)^{N_{i,j}-\sum_kY_{i,j}^{(k)}}\right)^{A_{i,j}}\left(\beta^{\sum_kY_{i,j}^{(k)}}(1-\beta)^{N_{i,j}-\sum_kY_{i,j}^{(k)}}\right)^{1-A_{i,j}}p(A)p(\theta)\end{split}$$
+To simplify the notations, let $E_{i,j}=\sum_kY_{i,j}^{(k)}$. Besides, in the rest of this report, we will use uniform priors in $[0,1]$ on the parameters. Hence, the formula above simplies to:
+$$\begin{split}P(A,\theta|data)&=\frac{1}{P(data)}\prod_{i<j}\left(\rho \alpha^{E_{i,j}}(1-\alpha)^{N_{i,j}-E_{i,j}}\right)^{A_{i,j}}\left((1-\rho)\beta^{E_{i,j}}(1-\beta)^{N_{i,j}-E_{i,j}}\right)^{1-A_{i,j}}\end{split}$$
 
 
 ## Experiments and results
@@ -54,7 +58,7 @@ $$\begin{split}p(A,\theta|data)&=\frac{1}{p(data)}\left(\alpha^{\sum_{k}Y_{i,j}^
 
 **Dataset**
 
-In this section, we propose to validate the model’s estimates using a synthetic dataset for which the ground truth network and the noisy observations are generated via a predefined probabilistic model. We simulate a network with `r n=50` $n=$ `r n` vertices, and we set $\rho=$ `r rho=0.1` `r rho`. The noisy observations are then simulated for $k=$ `r k=10` `r k` days, with true positive rate $\alpha=$ `r alpha=0.6` `r alpha` and false positive rate $\beta=$ `r beta=0.009` `r beta`. Our stopping criterium is met when the absolute value of the difference of all parameter values after an iteration is less than $\epsilon=$ `r epsilon=0.001` `r epsilon`. 
+In this section, we propose to validate the model’s estimates using a synthetic dataset for which the ground truth network and the noisy observations are generated via a predefined probabilistic model. We simulate a network with `r n=100` $n=$ `r n` vertices, and we set $\rho=$ `r rho=0.1` `r rho`. The noisy observations are then simulated for $k=$ `r k=5` `r k` days, with true positive rate $\alpha=$ `r alpha=0.6` `r alpha` and false positive rate $\beta=$ `r beta=0.009` `r beta`. Our stopping criterium is met when the absolute value of the difference of all parameter values after an iteration is less than $\epsilon=$ `r epsilon=0.001` `r epsilon`. 
 
 ```{r echo=FALSE, results='hide',fig.keep='none'}
    # generate ground truth network
@@ -69,18 +73,30 @@ In this section, we propose to validate the model’s estimates using a syntheti
 
 **Results**
 
-In this setting, the stopping criterium is met after `r simulation[5]` iterations. The figure below, shows the comparison of the ground truth network with the inferred network (obtained by thresholding the posterior probabilities at $t=$ `r t=0.5` `r t`), where the size of the nodes is proportional to their degree. 
+In this setting, the stopping criterium is met after `r simulation[5]` `r nIter=simulation[5]` iterations. The figure below, shows the comparison of the ground truth network with the inferred network (obtained by thresholding the posterior probabilities at $t=$ `r t=0.5` `r t`), where the size of the nodes is proportional to their degree.
 
-```{r echo=FALSE}
-  out=analyse_results(t)
+```{r echo=FALSE, fig.cap="\\label{fig:figs}(left) Ground truth underlying network (right) Inferred underlying network"}
+  out=analyse_results(t,n,k,rho,alpha,beta)
+```
+
+```{r echo=FALSE,fig.height = 5,fig.width=5,fig.align = "center",fig.cap="\\label{fig:figs} Convergence of the parameter estimates"}
+
+m1<-simulation[[6]][c(1:simulation[[5]]),]
+par(mfrow = c(2, 2))
+plot(m1[,1], type="l",xlab="iteration number",ylab=expression(alpha))
+plot(m1[,2],type="l",xlab="iteration number",ylab=expression(beta))
+plot(m1[,3],type="l",xlab="iteration number",ylab=expression(rho))
 ```
 
 
-$\begin{tabular}{|c|c|}\hline Precision & `r out$Precision` \\ \hline Recall & `r out$Recall` \\ \hline Accuracy & `r out$Accuracy` \\ \hline F-measure & `r out$F_measure` \\ \hline\end{tabular}$
 
-The figure below shows the influence of the number of observations $k$ on the performances of the algorithm. 
+$$
+\centering\begin{tabular}{|c|c|}\hline Precision & `r out$Precision` \\ \hline Recall & `r out$Recall` \\ \hline Accuracy & `r out$Accuracy` \\ \hline F-measure & `r out$F_measure` \\ \hline\end{tabular}$$
 
-```{r echo=FALSE}
+
+The figure below shows the influence of the number of repeated observations $k$ on the performances of the algorithm. 
+
+```{r echo=FALSE,fig.pos="H", fig.width = 5,fig.align = "center",fig.cap="\\label{fig:figs}Performance metrics versus the number of repeated observations k"}
 F_measure_plot(20,n)
 ```
 

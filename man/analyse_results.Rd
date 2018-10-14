@@ -4,7 +4,8 @@
 \alias{analyse_results}
 \title{Network comparison}
 \usage{
-analyse_results(theta = 0.5)
+analyse_results(theta = 0.5, n = 50, k = 10, p = 0.1,
+  alpha = 0.6, beta = 0.009)
 }
 \description{
 This script plots the algorithm's guess of the underlying network and compares it to the original network A

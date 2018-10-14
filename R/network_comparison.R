@@ -6,9 +6,14 @@
 #if(!require(igraph)){
  # install.packages("igraph")
 #}
-analyse_results = function(theta=0.5){
+analyse_results = function(theta=0.5, n=50, k=10, p=0.1, alpha=0.6, beta=0.009){
 
-  sim1 <- as.matrix(simulation)[[1]]
+  simulate <- simulate_infer(n, k, p=0.1, alpha=0.6, beta=0.009)
+  g <- simulate[[1]]
+  A <- simulate[[2]]
+  E <- simulate[[3]]
+  sim1 <- simulate[[4]][[1]]
+  sim1 <- as.matrix(sim1)
 
   # Remove weights from simulated A
   sim1[sim1<theta]=0
@@ -49,6 +54,7 @@ analyse_results = function(theta=0.5){
 
   out <- list("Precision"=Precision,"Recall"=Recall,"Accuracy"=Accuracy,"Error"=Error,"F_measure"=F_measure)
 }
+
 
 
 # Plot of F_measure versus observed days k

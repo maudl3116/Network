@@ -13,13 +13,18 @@ simulate_infer=function(n=50,k=10,p=0.1,alpha=0.6, beta=0.009){
 
   # perform inference via the EM algorithm
   simulation <- EM(alpha0=0.4, beta0=0.02, rho0=0.15, n, k, E)
-}
+  return(list(g, A, E, simulation))
+}   # simulation includes list(Q,alpha,beta,rho,nIter)
 
 
+analyse_results = function(theta=0.5, n=50, k=10, p=0.1, alpha=0.6, beta=0.009){
 
-analyse_results = function(theta=0.5){
-
-  sim1 <- as.matrix(simulation)[[1]]
+  simulate <- simulate_infer(n, k, p=0.1, alpha=0.6, beta=0.009)
+  g <- simulate[[1]]
+  A <- simulate[[2]]
+  E <- simulate[[3]]
+  sim1 <- simulate[[4]][[1]]
+  sim1 <- as.matrix(sim1)
 
   # Remove weights from simulated A
   sim1[sim1<theta]=0

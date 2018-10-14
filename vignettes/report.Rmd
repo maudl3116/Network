@@ -10,24 +10,40 @@ vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
-  
+abstract: "We have implemented an R package to estimate the parameters of exponential random graph models (ERG models), in the case where the data consists of noisy observations of the underlying hidden structure. The first part of this report focusses on the Bernouilli (or Erdos Renyi) model, performing inference via the Expectation Maximization algorithm, while the second part explores other ERG models, for which Bayesian parameter estimation is more challenging."  
 ---
-# Erdos–Renyi Model
-## Inference via the Expectation Maximization algorithm
-## Experiments
-
-# Extension to other Exponential Random Graph Models
-## Exponential Random Graph Models
-
-### Resulting Model
-We still assume that the data $y$ consists of noisy or incomplete observations of the underlying hidden structure $x$.
+# Introduction
+## Motivation
+The true network structure is drawn from $P(A|\theta)$. We will later constrain this distribution to belong to the exponential random graph models family. The observations of the network are supposed to be noisy. The network structure and the observations are related to one another by $P(data|A,\theta)$. Our aim is to infer the parameters $\theta$ through the posterior distribution $P(\theta|data)$. This is challenging, since it involves marginalising over the hidden variables (as shown on equation), leading to intractable computations. 
 
 ```{r pressure, echo=FALSE, out.width = '50%'}
 knitr::include_graphics("GM1.png")
 ```
 
 
-## Inference
+$$\begin{split}P(\theta|data)&\propto P(data|\theta)P(\theta)\\ & \propto \sum_AP(data,A|\theta)P(\theta)\\ &\propto \sum_AP(data|A,\theta)P(A|\theta)P(\theta) \end{split}$$
+
+## Models
+
+### Bernouilli
+Let $\rho$ be the probability of an edge in any position. Then, the Bernouilli model is defined by:
+$$P(A|\rho)=\prod_{i<j}\rho^{A_{i,j}}(1-\rho)^{A_{i,j}}$$
+
+### Generalisation 
+$$P_{\theta}(A=a)=exp\left(\sum_{i=1}^k{\theta_iT_i(a)-c(\theta)}\right)$$
+
+# Inference for the Bernouilli model
+
+## Inference via the Expectation Maximization algorithm
+
+## Experiments and results
+
+### Tests on simulated data
+
+### Tests on real data
+
+# Extension to other Exponential Random Graph Models
+
 TO DO: explain why we will not use the EM algorithm.
 
 The aim of this section is to discuss how a bayesian estimation of the parameters $\theta=\{\theta_x, \theta_y\}$ can be performed. In our case, we cannot use a vanilla Metropolis Hastings algorithm with $p(\theta|y)$ as a target distribution, for the following reasons:
@@ -40,20 +56,6 @@ The aim of this section is to discuss how a bayesian estimation of the parameter
 $$\alpha_{MH}(\theta,\theta')= 1 \land \frac{p(y|\theta')p(\theta')q(\theta|\theta')}{p(y|\theta)p(\theta)q(\theta'|\theta)}$$
 
 $$p(y|\theta)=\sum_xp(y|\theta,x)p(x|\theta) $$
-## To be discussed
-
-* Do we care about the posterior distribution of the hidden variables? As in the EM algorithm ??
-
-
 
 ## Experiments
 
-## Task split for Sunday
-
-* Natalia: 
-  + investigate more our results for part I
-  + write part I
-  
-* Maud:
-  + come up with an approach for part II: test existing libraries (Bergm,matlab code...)
-  + write the progress on part II

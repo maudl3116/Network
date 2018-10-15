@@ -4,7 +4,7 @@ author: Natalia Garcia Martin & Maud Lemercier
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::pdf_document:
-      extra_dependencies: ["stmaryrd","color"]
+      extra_dependencies: ["stmaryrd","color","pseudocode"]
       number_sections: true
       fig_caption: yes
       keep_tex: yes
@@ -17,13 +17,14 @@ abstract: "We have implemented an R package to estimate the parameters of expone
 ---
 # Introduction
 ## Problem formulation
-The true network structure is drawn from $P(A|\theta)$. We will later constrain this distribution to belong to the exponential random graph models family. The observations of the network are supposed to be noisy. The network structure and the observations are related to one another by $P(data|A,\theta)$. Our aim is to infer the parameters $\theta$ through the posterior distribution $P(\theta|data)$. $$P(\theta|data)\propto \sum_AP(data|A,\theta)P(A|\theta)P(\theta)$$ This optimisation problem is hard since it is often non convex, might have many local maxima and no analytical solutions. In our model, as illustrated on Figure \ref{fig:figs}, we have two unknowns: the latent variables and the parameters. We also suppose that the underlying network is probed $k$ times.  
+The true network structure is drawn from $P(A|\theta_A)$. We will later constrain this distribution to belong to the exponential random graph models family. The observations of the network are supposed to be noisy. The network structure and the observations are related to one another by $P(data|A,\theta_Y)$. Our aim is to infer the parameters $\theta=\{\theta_A,\theta_Y\}$ through the posterior distribution $P(\theta|data)$. $$P(\theta|data)\propto \sum_AP(data|A,\theta_Y)P(A|\theta_A)P(\theta)$$ This optimisation problem is hard since the function is often non convex, might have many local maxima and no analytical solutions. In our model, as illustrated on Figure \ref{fig:graph_model}, we have two unknowns: the latent variables and the parameters. We also suppose that the underlying network is probed $k$ times.  
 
-```{r pressure, echo=FALSE, fig.pos="H", out.width = '65%',fig.cap="\\label{fig:figs}Graphical Model"}
+```{r pressure, echo=FALSE, fig.pos="H", out.width = '65%',fig.cap="\\label{fig:graph_model}Graphical Model"}
 knitr::include_graphics("GM2.png")
 
 ```
 
+In this report, we consider unweighted undirected networks, characterised by an $n \times n$ symmetric adjacency matrix $A$, having elements $A_{i,j} = 1$ if nodes $i$ and $j$ are connected by an edge and $0$ otherwise. Similarly, we note $Y_{i,j}^{(k)}$ the edge measurement between node $i$ and $j$ at time $k$.
 
 ## Models
 
@@ -32,7 +33,10 @@ Let $\rho$ be the probability of an edge in any position. Then, the Bernouilli m
 $$P(A|\rho)=\prod_{i<j}\rho^{A_{i,j}}(1-\rho)^{1-A_{i,j}}$$
 
 ### Generalisation 
-$$P(A=a|\theta)=exp\left(\sum_{i=1}^k{\theta_iT_i(a)-c(\theta)}\right)$$
+
+Exponential random graph models are a family of probability distributions on graphs. Let $\mathcal{A}_n$ be the set of all graphs on $n$ vertices, and consider the following model, where $\theta_i,~i=1,2,...,m$ are real valued parameters, and $T_i,~i=1,2,...,m$ are real valued statistics defined on $\mathcal{A}_n$. Possible sufficient statistics for such models are the degree of the vertices, the number of edges, the number of triangles, or the number of connected components.
+
+$$P(A=a|\theta)=\frac{1}{Z(\theta)}exp\left(\sum_{i=1}^m{\theta_iT_i(a)}\right)$$
 
 # Inference for the Bernouilli model
 ## Expectation Maximization algorithm
@@ -51,6 +55,24 @@ $$\begin{split}P(A,\theta|data)&=\frac{1}{P(data)}\prod_{i<j}\left(\alpha^{\sum_
 To simplify the notations, let $E_{i,j}=\sum_kY_{i,j}^{(k)}$. Besides, in the rest of this report, we will use uniform priors in $[0,1]$ on the parameters. Hence, the formula above simplies to:
 $$\begin{split}P(A,\theta|data)&=\frac{1}{P(data)}\prod_{i<j}\left(\rho \alpha^{E_{i,j}}(1-\alpha)^{N_{i,j}-E_{i,j}}\right)^{A_{i,j}}\left((1-\rho)\beta^{E_{i,j}}(1-\beta)^{N_{i,j}-E_{i,j}}\right)^{1-A_{i,j}}\end{split}$$
 
+To simplify the notations further, let $Q_{i,j}=P(A_{i,j}=1|data,\theta)$
+
+$$\begin{pseudocode}[shadowbox]{EM}{\alpha^{(0)},\beta^{(0)}, \rho^{(0)}}
+(\alpha,\beta, \rho) \leftarrow (\alpha^{(0)},\beta^{(0)}, \rho^{(0)}) \\
+\\ 
+\WHILE \mbox{stopping criterion is not met} \DO 
+\BEGIN
+\mbox{E step:}\\ 
+~~~Q_{i,j} \leftarrow \frac{\rho\alpha^{E_{i,j}}(1-\alpha)^{N-E_{i,j}}}{\rho\alpha^{E_{i,j}}(1-\alpha)^{N-E_{i,j}}+(1-\rho)\beta^{E_{i,j}}(1-\beta)^{N-E_{i,j}}}\\
+\mbox{M step:} \\
+\BEGIN
+~~~\alpha \leftarrow \frac{\sum_{i<j}E_{i,j}Q_{i,j}}{N\sum_{i<j}Q_{i,j}} \\
+~~~\beta \leftarrow \frac{\sum_{i<j}E_{i,j}(1-Q_{i,j})}{N\sum_{i<j}(1-Q_{i,j})} \\
+~~~\rho \leftarrow \frac{1}{{n \choose 2}}\sum_{i<j}Q_{i,j}
+\END
+\END \\ 
+\RETURN{Q,\alpha,\beta, \rho}
+\end{pseudocode}$$
 
 ## Experiments and results
 
@@ -58,9 +80,9 @@ $$\begin{split}P(A,\theta|data)&=\frac{1}{P(data)}\prod_{i<j}\left(\rho \alpha^{
 
 **Dataset**
 
-In this section, we propose to validate the model’s estimates using a synthetic dataset for which the ground truth network and the noisy observations are generated via a predefined probabilistic model. We simulate a network with `r n=100` $n=$ `r n` vertices, and we set $\rho=$ `r rho=0.1` `r rho`. The noisy observations are then simulated for $k=$ `r k=5` `r k` days, with true positive rate $\alpha=$ `r alpha=0.6` `r alpha` and false positive rate $\beta=$ `r beta=0.009` `r beta`. Our stopping criterium is met when the absolute value of the difference of all parameter values after an iteration is less than $\epsilon=$ `r epsilon=0.001` `r epsilon`. 
+In this section, we propose to validate the model’s estimates using a synthetic dataset for which the ground truth network and the noisy observations are generated via a predefined probabilistic model. We simulate a network with `r n=100` $n=$ `r n` vertices, and we set $\rho=$ `r rho=0.1` `r rho`. The noisy observations are then simulated for $k=$ `r k=5` `r k` days, with true positive rate $\alpha=$ `r alpha=0.6` `r alpha` and false positive rate $\beta=$ `r beta=0.009` `r beta`. Our stopping criterion is met when the absolute value of the difference of all parameter values after an iteration is less than $\epsilon=$ `r epsilon=0.001` `r epsilon`. 
 
-```{r echo=FALSE, results='hide',fig.keep='none'}
+```{r echo=FALSE, results='hide',fig.keep='none',fig.pos="H"}
    # generate ground truth network
   output <- sampleErdosRenyi(n,rho)
   g <- output[[2]]
@@ -73,13 +95,16 @@ In this section, we propose to validate the model’s estimates using a syntheti
 
 **Results**
 
-In this setting, the stopping criterium is met after `r simulation[5]` `r nIter=simulation[5]` iterations. The figure below, shows the comparison of the ground truth network with the inferred network (obtained by thresholding the posterior probabilities at $t=$ `r t=0.5` `r t`), where the size of the nodes is proportional to their degree.
+In this setting, the stopping criterion is met after `r simulation[5]` `r nIter=simulation[5]` iterations. The figure below, shows the comparison of the ground truth network with the inferred network (obtained by thresholding the posterior probabilities at $t=$ `r t=0.5` `r t`), where the size of the nodes is proportional to their degree.
 
-```{r echo=FALSE, fig.cap="\\label{fig:figs}(left) Ground truth underlying network (right) Inferred underlying network"}
+\newpage
+
+```{r echo=FALSE, fig.pos="H",fig.cap="\\label{fig:comparison}(left) Ground truth underlying network (right) Inferred underlying network"}
   out=analyse_results(t,n,k,rho,alpha,beta)
 ```
 
-```{r echo=FALSE,fig.height = 5,fig.width=5,fig.align = "center",fig.cap="\\label{fig:figs} Convergence of the parameter estimates"}
+
+```{r echo=FALSE,fig.pos="H",fig.height = 5,fig.width=5,fig.align = "center",fig.cap="\\label{fig:figs} Convergence of the parameter estimates"}
 
 m1<-simulation[[6]][c(1:simulation[[5]]),]
 par(mfrow = c(2, 2))
@@ -105,18 +130,16 @@ F_measure_plot(20,n)
 
 # Extension to other Exponential Random Graph Models
 
-TO DO: explain why we will not use the EM algorithm.
-
-The aim of this section is to discuss how a bayesian estimation of the parameters $\theta=\{\theta_x, \theta_y\}$ can be performed. In our case, we cannot use a vanilla Metropolis Hastings algorithm with $p(\theta|y)$ as a target distribution, for the following reasons:
+The aim of this section is to discuss how a bayesian estimation of the parameters $\theta=\{\theta_A, \theta_Y\}$ can be performed. In our case, we cannot use a vanilla Metropolis Hastings algorithm with $p(\theta|Y)$ as a target distribution, for the following reasons:
 
 * The normalising constant $Z(\theta)$ is intractable. This problem is would also arise in the case where the network is completely observed. 
 
-* The likelihood appearing in the acceptance ratio is intractable, since we would have to sum over all the states that the hidden variable $x$ can take, with $x$ a binary vector of size $n$.
+* The likelihood appearing in the acceptance ratio is intractable, since we would have to sum over all the states that the hidden variable $A$ can take, with $A$ a binary vector of size $n$.
 
 
-$$\alpha_{MH}(\theta,\theta')= 1 \land \frac{p(y|\theta')p(\theta')q(\theta|\theta')}{p(y|\theta)p(\theta)q(\theta'|\theta)}$$
+$$\alpha_{MH}(\theta,\theta')= 1 \land \frac{p(Y|\theta')p(\theta')q(\theta|\theta')}{p(Y|\theta)p(\theta)q(\theta'|\theta)}$$
 
-$$p(y|\theta)=\sum_xp(y|\theta,x)p(x|\theta) $$
+$$p(Y|\theta)=\sum_Ap(Y|\theta,A)p(A|\theta) $$
 
-## Experiments
+
 

@@ -90,7 +90,7 @@ F_measure_plot <- function(k, n, alpha=0.6,beta=0.009,rho=0.1){
   lines(Accuracy_vector, type="l", xlab="Number of days",col="dark green", ylab="", lty=2,xlim=c(1,k) ,ylim=c(0,1),lwd=2)
   lines(Precision_vector, type="l", xlab="Number of days",col="blue", ylab="", lty=3,xlim=c(1,k) ,ylim=c(0,1),lwd=2)
   lines(Recall_vector, type="l", xlab="Number of days",col="dark violet", ylab="", lty=4,xlim=c(1,k) ,ylim=c(0,1),lwd=2)
-  legend("bottomright",legend=c("F Measure", "Accuracy", "Precision", "Recall"),lty=1:4,col=c("coral", "dark green", "blue", "dark violet"), cex=1, y.intersp=0.5, lwd=2)
+  legend("bottomright",legend=c("F Measure", "Accuracy", "Precision", "Recall"),lty=1:4,col=c("coral", "dark green", "blue", "dark violet"), cex=1, y.intersp=2, lwd=2)
 }
 
 F_measure_plot(20, n=100)
@@ -131,7 +131,7 @@ F_measure_networksize <- function(k=5, n=100, alpha=0.6,beta=0.009,rho=0.1){
   lines(size, Accuracy_vector, type="l", xlab="Network size",col="dark green", ylab="", lty=2,xlim=c(5,n) ,ylim=c(0,1),lwd=2)
   lines(size, Precision_vector, type="l", xlab="Network size",col="blue", ylab="", lty=3,xlim=c(5,n) ,ylim=c(0,1),lwd=2)
   lines(size, Recall_vector, type="l", xlab="Network size",col="dark violet", ylab="", lty=4,xlim=c(5,n) ,ylim=c(0,1),lwd=2)
-  legend("bottomright",legend=c("F Measure", "Accuracy", "Precision", "Recall"),lty=1:4,col=c("coral", "dark green", "blue", "dark violet"), cex=1, y.intersp=0.5, lwd=2)
+  legend("bottomright",legend=c("F Measure", "Accuracy", "Precision", "Recall"),lty=1:4,col=c("coral", "dark green", "blue", "dark violet"), cex=1, y.intersp=2, lwd=2)
 }
 
 

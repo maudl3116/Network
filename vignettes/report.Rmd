@@ -122,7 +122,7 @@ $$
 The figure below shows the influence of the number of repeated observations $k$ on the performances of the algorithm. 
 
 ```{r echo=FALSE,fig.pos="H", fig.width = 5,fig.align = "center",fig.cap="\\label{fig:figs}Performance metrics versus the number of repeated observations k"}
-F_measure_plot(20,n)
+knitr::include_graphics("performance.png")
 ```
 
 

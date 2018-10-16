@@ -52,7 +52,7 @@ analyse_results = function(theta=0.5, n=50, k=10, p=0.1, alpha=0.6, beta=0.009){
   Error <- 1-Accuracy
   F_measure <- 2/ ((1 / Precision) + (1 / Recall) )
 
-  out <- list("Precision"=Precision,"Recall"=Recall,"Accuracy"=Accuracy,"Error"=Error,"F_measure"=F_measure)
+  out <- list("Precision"=round(Precision, digits = 3),"Recall"=round(Recall, digits = 3),"Accuracy"=round(Accuracy, digits = 3),"Error"=Error,"F_measure"=round(F_measure, digits = 3))
   }
 
 

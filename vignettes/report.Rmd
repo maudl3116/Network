@@ -167,7 +167,7 @@ $$
 
 The figure below shows the influence of the number of repeated observations $k$ on the performances of the algorithm. 
 
-```{r echo=FALSE,fig.pos="H", fig.width = 5,fig.align = "center",fig.cap="\\label{fig:figs}Performance metrics versus the number of repeated observations k"}
+```{r echo=FALSE,fig.pos="H",fig.width=0.5,fig.align = "center",fig.cap="\\label{fig:figs}Performance metrics versus the number of repeated observations k"}
 knitr::include_graphics("Rplot01.png")
 ```
 

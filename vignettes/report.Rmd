@@ -1,14 +1,16 @@
 ---
 title: "Network structure from rich but noisy data"
 author: Natalia Garcia Martin & Maud Lemercier
+bibliography: references.bib
 date: "`r Sys.Date()`"
 output: 
   rmarkdown::pdf_document:
+      citation_package: natbib
       extra_dependencies: ["stmaryrd","color","pseudocode"]
       number_sections: true
       fig_caption: yes
       keep_tex: yes
-header-includes: \usepackage{float}
+header-includes: \usepackage{float} 
 vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
@@ -26,27 +28,25 @@ knitr::include_graphics("GM2.png")
 
 In this report, we consider unweighted undirected networks, characterised by an $n \times n$ symmetric adjacency matrix $A$, having elements $A_{i,j} = 1$ if nodes $i$ and $j$ are connected by an edge and $0$ otherwise. Similarly, we note $Y_{i,j}^{(k)}$ the edge measurement between node $i$ and $j$ at time $k$.
 
-## Models
+## Network models
 
 ### Bernoulli (Erdős–Rényi) model
 
-The Bernoulli or Erdős–Rényi model is one of the simplest models for random networks. Starting with $n$ isolated vertices, for any pair of nodes $(i, j)$ an edge is added with probability $\rho>0$. This step is repeated for the $\binom{n}{2}=n(n-1)/2$ pairs of nodes. This network is determined by the number of nodes $n$, the probability of edge formation $\rho$ and the total number edges $m$ and can be expressed as either $G(n,\rho)$ or $G(n,m)$. We will use the former notation. Since there are $\binom{n}{2}$ pairs of nodes in the network, the expected number of edges is given by $\binom{n}{2}\rho$. Similarly, the expected number of 2-stars is $\binom{n}{3}\rho^2$ and the expected number of triangles is $\binom{n}{3}\rho^3$.\\
-
-The degree $deg~(j)$ of a node $j$ is defined as the number of edges connected to it. Given the adjacency matrix $A$, this is
-$$ deg~(j)=\sum_{i}{A_{i,j}}.$$
+The Bernoulli or Erdős–Rényi model is one of the simplest models for random networks. Starting with $n$ isolated vertices, for any pair of nodes $(i, j)$ an edge is added with probability $\rho>0$. This step is repeated for the $\binom{n}{2}=n(n-1)/2$ pairs of nodes. This network is determined by the number of nodes $n$, the probability of edge formation $\rho$ and the total number edges $m$ and can be expressed as either $G(n,\rho)$ or $G(n,m)$. We will use the former notation. Since there are $\binom{n}{2}$ pairs of nodes in the network, the expected number of edges is given by $\binom{n}{2}\rho$. Similarly, the expected number of 2-stars is $\binom{n}{3}\rho^2$ and the expected number of triangles is $\binom{n}{3}\rho^3$. The degree $deg(j)$ of a node $j$ is defined as the number of edges connected to it. Given the adjacency matrix $A$, this is
+$$ deg(j)=\sum_{i}{A_{i,j}}.$$
 
 The average degree of the graph is then given by the average of the individual nodes degrees. For a Bernoulli graph, the probability that a given node has degree $d$ is the product of $a)$ the probability that $d$ links are present, $b)$ the probability that the remaining potential links are missing, and $c)$ the number of combinations in which we can select the $d$ links out of the potential $n-1$. Hence, they follow a Binomial distribution:
 
-$$ P(deg~(j)=d)=p_d=\binom{n-1}{d}\rho^d(1-\rho)^{n-1-d} $$
+$$ P(deg(j)=d)=p_d=\binom{n-1}{d}\rho^d(1-\rho)^{n-1-d} $$
 
-with expected degree $\rho(n-1)$. For large $n$ and small $\rho$, this distribution can be approximated by a Poisson distribution with parameter $\rho(n-1)$. Due to all pairs of nodes having the same probability of edge formation, the Erd\"os-R\'enyi model is not appropriate to represent social networks, where edges tend to form between nodes which already share common connections.\\
+with expected degree $\rho(n-1)$. For large $n$ and small $\rho$, this distribution can be approximated by a Poisson distribution with parameter $\rho(n-1)$. Due to all pairs of nodes having the same probability of edge formation, the Erdős–Rényi model is not appropriate to represent social networks, where edges tend to form between nodes which already share common connections.\
 
 
 ### ERGM model
 
 Exponential random graph models are a family of probability distributions on graphs. Let $\mathcal{A}_n$ be the set of all graphs on $n$ vertices, and consider the following model, where $\theta_i,~i=1,2,...,m$ are real valued parameters, and $T_i,~i=1,2,...,m$ are real valued statistics defined on $\mathcal{A}_n$. Possible sufficient statistics for such models are the degree of the vertices, the number of edges, the number of triangles, or the number of connected components.
 
-$$P(A=a|\theta)=\frac{1}{Z(\theta)}exp\left(\sum_{i=1}^m{\theta_iT_i(a)}\right)$$
+$$P(A=a|\theta)=\frac{1}{Z(\theta)}\exp\left(\sum_{i=1}^m{\theta_iT_i(a)}\right)$$
 
 # Methods
 ## Inference for the Bernoulli model
@@ -70,9 +70,7 @@ $$\begin{aligned}
 where $q(A)$ is any probability distribution over networks satisfying $\sum_{A}q(A)=1.$ The right hand size of the equation is maximised in the case of equality, that is, when 
 $$q(A)=\frac{P(A,\theta|\mbox{data})}{ \sum_{A}P(A,\theta|\mbox{data})}.$$
 
-Notice that $q(A)=P(A|\mbox{data}, \theta)$. We will use this result in order to estimate the parameters $\theta$ and the true underlying network $A$  by employing an EM algorithm. \\
-
-We now define the true-positive rate $\alpha$ and the false-positive rate $\beta$ respectively as the probabilities of observing an edge when it actually exists and observing it when it does not exist. We assume that the priors for $\alpha$, $\beta$ and $\rho$ are uniform in the interval [0,1]. Then,
+Notice that $q(A)=P(A|\mbox{data}, \theta)$. We will use this result in order to estimate the parameters $\theta$ and the true underlying network $A$  by employing an EM algorithm. We now define the true-positive rate $\alpha$ and the false-positive rate $\beta$ respectively as the probabilities of observing an edge when it actually exists and observing it when it does not exist. We assume that the priors for $\alpha$, $\beta$ and $\rho$ are uniform in the interval [0,1]. Then,
 
 
 $$\begin{aligned}
@@ -88,7 +86,7 @@ P(A,\theta|\mbox{data})
 &=\frac{1}{P(data)}\prod_{i<j}\left(\rho \alpha^{E_{i,j}}(1-\alpha)^{N_{i,j}-E_{i,j}}\right)^{A_{i,j}}\left((1-\rho)\beta^{E_{i,j}}(1-\beta)^{N_{i,j}-E_{i,j}}\right)^{1-A_{i,j}}.
 \end{aligned}$$
 
-### Expectation Maximization algorithm
+## The EM (expectation-maximization) algorithm
 
 **E-step**
 
@@ -99,10 +97,10 @@ $$q^{(t)}(A)=\frac{p(A,\hat{\theta}^{(t)}|\mbox{data})}{\sum_A{p(A,\hat{\theta}^
 
 The maximisation step consists in solving the tractable optimisation problem: 
 $$\sum_Aq^{(t)}(A)\nabla_\theta \log~{p(A,\hat{\theta}^{(t+1)}|\mbox{data})}=0$$
-With the Bernouilli model, the maximisation step is tractable, since we have: 
-$$\begin{split}P(A,\theta|\mbox{data})&=\frac{1}{P(\mbox{data})}\prod_{i<j}\left(\rho \alpha^{E_{i,j}}(1-\alpha)^{N_{i,j}-E_{i,j}}\right)^{A_{i,j}}\left((1-\rho)\beta^{E_{i,j}}(1-\beta)^{N_{i,j}-E_{i,j}}\right)^{1-A_{i,j}}\end{split}$$
+With the Bernoulli model, the maximisation step is tractable, since we have: 
+$$\begin{split}P(A,\theta|\mbox{data})&=\frac{1}{P(\mbox{data})}\prod_{i<j}\left(\rho \alpha^{E_{i,j}}(1-\alpha)^{N_{i,j}-E_{i,j}}\right)^{A_{i,j}}\left((1-\rho)\beta^{E_{i,j}}(1-\beta)^{N_{i,j}-E_{i,j}}\right)^{1-A_{i,j}}\end{split}.$$
 
-To simplify the notations further, let $Q_{i,j}=P(A_{i,j}=1|data,\theta)=\sum_{A}{q(A)A_{i,j}}.$
+To simplify the notations, let $Q_{i,j}=P(A_{i,j}=1|data,\theta)=\sum_{A}{q(A)A_{i,j}}.$
 
 $$\begin{pseudocode}[shadowbox]{EM}{\alpha^{(0)},\beta^{(0)}, \rho^{(0)}}
 (\alpha,\beta, \rho) \leftarrow (\alpha^{(0)},\beta^{(0)}, \rho^{(0)}) \\
@@ -135,8 +133,8 @@ $$\alpha_{MH}(\theta,\theta')= 1 \land \frac{p(Y|\theta')p(\theta')q(\theta|\the
 
 $$p(Y|\theta)=\sum_Ap(Y|\theta,A)p(A|\theta) $$
 
-### The exchange algorithm
-### Pseudo-marginal MCMC
+## The exchange algorithm
+## Pseudo-marginal MCMC (optional)
 
 # Results
 
@@ -161,7 +159,6 @@ In this section, we propose to validate the model’s estimates using a syntheti
 
 In this setting, the stopping criterion is met after `r simulation[5]` `r nIter=simulation[5]` iterations. The figure below, shows the comparison of the ground truth network with the inferred network (obtained by thresholding the posterior probabilities at $t=$ `r t=0.5` `r t`), where the size of the nodes is proportional to their degree.
 
-\newpage
 
 ```{r echo=FALSE, fig.pos="H",fig.cap="\\label{fig:comparison}(left) Ground truth underlying network (right) Inferred underlying network"}
   out=analyse_results(t,n,k,rho,alpha,beta)
@@ -182,7 +179,6 @@ plot(m1[,3],type="l",xlab="iteration number",ylab=expression(rho))
 $$
 \centering\begin{tabular}{|c|c|}\hline Precision & `r out$Precision` \\ \hline Recall & `r out$Recall` \\ \hline Accuracy & `r out$Accuracy` \\ \hline F-measure & `r out$F_measure` \\ \hline\end{tabular}$$
 
-
 The figure below shows the influence of the number of repeated observations $k$ on the performances of the algorithm. 
 
 ```{r echo=FALSE,fig.pos="H",fig.height = 4,fig.width=10,fig.align = "center",fig.cap="\\label{fig:figs}Performance metrics versus the number of repeated observations k"}
@@ -191,8 +187,17 @@ F_measure_plot(20, n=100)
 F_measure_networksize(n=100)
 ```
 
+# Discussion
 
-
-
+\nocite{
+morris2008specification,
+eagle2006reality,
+everitt2012bayesian,
+korber2018bayesian,
+jin2013bayesian,
+newman2018network,
+koskinen2010analysing,
+everitt2017marginal,
+murray2012mcmc}
 
 

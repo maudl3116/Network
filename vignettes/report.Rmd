@@ -39,6 +39,9 @@ Exponential random graph models are a family of probability distributions on gra
 $$P(A=a|\theta)=\frac{1}{Z(\theta)}exp\left(\sum_{i=1}^m{\theta_iT_i(a)}\right)$$
 
 # Inference for the Bernouilli model
+
+
+
 ## Expectation Maximization algorithm
 
 **E-step**
@@ -51,11 +54,10 @@ $$q^{(t)}(A)=\frac{p(A,\hat{\theta}^{(t)}|data)}{\sum_A{p(A,\hat{\theta}^{(t)}|d
 The maximisation step consists in solving the tractable optimisation problem: 
 $$\sum_Aq^{(t)}(A)\nabla_\theta log~{p(A,\hat{\theta}^{(t+1)}|data)}=0$$
 With the Bernouilli model, the maximisation step is tractable, since we have: 
-$$\begin{split}P(A,\theta|data)&=\frac{1}{P(data)}\prod_{i<j}\left(\alpha^{\sum_{k}Y_{i,j}^{(k)}}(1-\alpha)^{N_{i,j}-\sum_kY_{i,j}^{(k)}}\right)^{A_{i,j}}\left(\beta^{\sum_kY_{i,j}^{(k)}}(1-\beta)^{N_{i,j}-\sum_kY_{i,j}^{(k)}}\right)^{1-A_{i,j}}p(A)p(\theta)\end{split}$$
-To simplify the notations, let $E_{i,j}=\sum_kY_{i,j}^{(k)}$. Besides, in the rest of this report, we will use uniform priors in $[0,1]$ on the parameters. Hence, the formula above simplies to:
+
 $$\begin{split}P(A,\theta|data)&=\frac{1}{P(data)}\prod_{i<j}\left(\rho \alpha^{E_{i,j}}(1-\alpha)^{N_{i,j}-E_{i,j}}\right)^{A_{i,j}}\left((1-\rho)\beta^{E_{i,j}}(1-\beta)^{N_{i,j}-E_{i,j}}\right)^{1-A_{i,j}}\end{split}$$
 
-To simplify the notations further, let $Q_{i,j}=P(A_{i,j}=1|data,\theta)$
+To simplify the notations further, let $Q_{i,j}=P(A_{i,j}=1|\mbox{data},\theta)=\sum_{A}{q(A)A_{i,j}}.$ 
 
 $$\begin{pseudocode}[shadowbox]{EM}{\alpha^{(0)},\beta^{(0)}, \rho^{(0)}}
 (\alpha,\beta, \rho) \leftarrow (\alpha^{(0)},\beta^{(0)}, \rho^{(0)}) \\

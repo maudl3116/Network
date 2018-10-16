@@ -16,7 +16,7 @@ vignette: >
 abstract: "We have implemented an R package to estimate the parameters of exponential random graph models (ERG models), in the case where the data consists of noisy observations of the underlying hidden structure. The first part of this report focusses on the Bernouilli (or Erdos Renyi) model, performing inference via the Expectation Maximization algorithm, while the second part explores other ERG models, for which Bayesian parameter estimation is more challenging."  
 ---
 # Introduction
-## Problem formulation
+## Problem formulation and motivation
 The true network structure is drawn from $P(A|\theta_A)$. We will later constrain this distribution to belong to the exponential random graph models family. The observations of the network are supposed to be noisy. The network structure and the observations are related to one another by $P(data|A,\theta_Y)$. Our aim is to infer the parameters $\theta=\{\theta_A,\theta_Y\}$ through the posterior distribution $P(\theta|data)$. $$P(\theta|data)\propto \sum_AP(data|A,\theta_Y)P(A|\theta_A)P(\theta)$$ This optimisation problem is hard since the function is often non convex, might have many local maxima and no analytical solutions. In our model, as illustrated on Figure \ref{fig:graph_model}, we have two unknowns: the latent variables and the parameters. We also suppose that the underlying network is probed $k$ times.  
 
 ```{r pressure, echo=FALSE, fig.pos="H", out.width = '65%',fig.cap="\\label{fig:graph_model}Graphical Model"}
@@ -28,9 +28,9 @@ In this report, we consider unweighted undirected networks, characterised by an 
 
 ## Models
 
-### Bernoulli (Erd\"os-R\'enyi) model
+### Bernoulli (Erdős–Rényi) model
 
-The Bernoulli or Erd\"os-R\'enyi model is one of the simplest models for random networks. Starting with $n$ isolated vertices, for any pair of nodes $(i, j)$ an edge is added with probability $\rho>0$. This step is repeated for the $\binom{n}{2}=n(n-1)/2$ pairs of nodes. This network is determined by the number of nodes $n$, the probability of edge formation $\rho$ and the total number edges $m$ and can be expressed as either $G(n,\rho)$ or $G(n,m)$. We will use the former notation. Since there are $\binom{n}{2}$ pairs of nodes in the network, the expected number of edges is given by $\binom{n}{2}\rho$. Similarly, the expected number of 2-stars is $\binom{n}{3}\rho^2$ and the expected number of triangles is $\binom{n}{3}\rho^3$.\\
+The Bernoulli or Erdős–Rényi model is one of the simplest models for random networks. Starting with $n$ isolated vertices, for any pair of nodes $(i, j)$ an edge is added with probability $\rho>0$. This step is repeated for the $\binom{n}{2}=n(n-1)/2$ pairs of nodes. This network is determined by the number of nodes $n$, the probability of edge formation $\rho$ and the total number edges $m$ and can be expressed as either $G(n,\rho)$ or $G(n,m)$. We will use the former notation. Since there are $\binom{n}{2}$ pairs of nodes in the network, the expected number of edges is given by $\binom{n}{2}\rho$. Similarly, the expected number of 2-stars is $\binom{n}{3}\rho^2$ and the expected number of triangles is $\binom{n}{3}\rho^3$.\\
 
 The degree $deg~(j)$ of a node $j$ is defined as the number of edges connected to it. Given the adjacency matrix $A$, this is
 $$ deg~(j)=\sum_{i}{A_{i,j}}.$$
@@ -48,7 +48,8 @@ Exponential random graph models are a family of probability distributions on gra
 
 $$P(A=a|\theta)=\frac{1}{Z(\theta)}exp\left(\sum_{i=1}^m{\theta_iT_i(a)}\right)$$
 
-# Inference for the Bernouilli model
+# Methods
+## Inference for the Bernoulli model
 
 Since the underlying matrix $A$ is symmetric, we consider the lower triangular part of the matrix only and simulate the interactions for each day $k$ as edge observations $Y_{i,j}^{(k)}$ for entries $i<j$. These observations are assumed to be independent Bernoulli random variables conditioned on $A_{i,j}$. Given that the prior probability for a random edge is $\rho$, the prior model for the network is 
 $$P(A|\rho)=\prod_{i<j}\rho^{A_{i,j}}(1-\rho)^{1-A_{i,j}}.$$
@@ -87,7 +88,7 @@ P(A,\theta|\mbox{data})
 &=\frac{1}{P(data)}\prod_{i<j}\left(\rho \alpha^{E_{i,j}}(1-\alpha)^{N_{i,j}-E_{i,j}}\right)^{A_{i,j}}\left((1-\rho)\beta^{E_{i,j}}(1-\beta)^{N_{i,j}-E_{i,j}}\right)^{1-A_{i,j}}.
 \end{aligned}$$
 
-## Expectation Maximization algorithm
+### Expectation Maximization algorithm
 
 **E-step**
 
@@ -120,9 +121,26 @@ $$\begin{pseudocode}[shadowbox]{EM}{\alpha^{(0)},\beta^{(0)}, \rho^{(0)}}
 \RETURN{Q,\alpha,\beta, \rho}
 \end{pseudocode}$$
 
-## Experiments and results
+## Inference for the ERGM model
 
-### Tests on simulated data
+
+The aim of this section is to discuss how a bayesian estimation of the parameters $\theta=\{\theta_A, \theta_Y\}$ can be performed. In our case, we cannot use a vanilla Metropolis Hastings algorithm with $p(\theta|Y)$ as a target distribution, for the following reasons:
+
+* The normalising constant $Z(\theta)$ is intractable. This problem is would also arise in the case where the network is completely observed. 
+
+* The likelihood appearing in the acceptance ratio is intractable, since we would have to sum over all the states that the hidden variable $A$ can take, with $A$ a binary vector of size $n$.
+
+
+$$\alpha_{MH}(\theta,\theta')= 1 \land \frac{p(Y|\theta')p(\theta')q(\theta|\theta')}{p(Y|\theta)p(\theta)q(\theta'|\theta)}$$
+
+$$p(Y|\theta)=\sum_Ap(Y|\theta,A)p(A|\theta) $$
+
+### The exchange algorithm
+### Pseudo-marginal MCMC
+
+# Results
+
+## Tests on simulated data
 
 **Dataset**
 
@@ -174,20 +192,7 @@ F_measure_networksize(n=100)
 ```
 
 
-### Tests on real data
 
-# Extension to other Exponential Random Graph Models
-
-The aim of this section is to discuss how a bayesian estimation of the parameters $\theta=\{\theta_A, \theta_Y\}$ can be performed. In our case, we cannot use a vanilla Metropolis Hastings algorithm with $p(\theta|Y)$ as a target distribution, for the following reasons:
-
-* The normalising constant $Z(\theta)$ is intractable. This problem is would also arise in the case where the network is completely observed. 
-
-* The likelihood appearing in the acceptance ratio is intractable, since we would have to sum over all the states that the hidden variable $A$ can take, with $A$ a binary vector of size $n$.
-
-
-$$\alpha_{MH}(\theta,\theta')= 1 \land \frac{p(Y|\theta')p(\theta')q(\theta|\theta')}{p(Y|\theta)p(\theta)q(\theta'|\theta)}$$
-
-$$p(Y|\theta)=\sum_Ap(Y|\theta,A)p(A|\theta) $$
 
 
 

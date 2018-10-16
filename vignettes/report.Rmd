@@ -47,7 +47,10 @@ with expected degree $\rho(n-1)$. For large $n$ and small $\rho$, this distribut
 Exponential random graph models are a family of probability distributions on graphs. Let $\mathcal{A}_n$ be the set of all graphs on $n$ vertices, and consider the following model, where $\theta_i,~i=1,2,...,m$ are real valued parameters, and $T_i,~i=1,2,...,m$ are real valued statistics defined on $\mathcal{A}_n$. Possible sufficient statistics for such models are the degree of the vertices, the number of edges, the number of triangles, or the number of connected components.
 
 $$P(A=a|\theta)=\frac{1}{Z(\theta)}\exp\left(\sum_{i=1}^m{\theta_iT_i(a)}\right)$$
+```{r echo=FALSE, fig.align='center', fig.pos="H", out.width = '50%',out.height='50%',fig.cap="\\label{fig:triangle}Example of edge, 2-star and triangle"}
+knitr::include_graphics("triangle.png")
 
+```
 # Methods
 ## Inference for the Bernoulli model
 

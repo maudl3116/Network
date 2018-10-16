@@ -201,5 +201,7 @@ jin2013bayesian,
 newman2018network,
 koskinen2010analysing,
 everitt2017marginal,
-murray2012mcmc}
+murray2012mcmc,
+hunter2006,
+park2018bayesian}
 

@@ -136,8 +136,10 @@ $$\alpha_{MH}(\theta,\theta')= 1 \land \frac{p(Y|\theta')p(\theta')q(\theta|\the
 
 $$p(Y|\theta)=\sum_Ap(Y|\theta,A)p(A|\theta) $$
 
+## Pseudolikelihood estimation
+## Markov Chain Monte Carlo Maximum Likelihood estimation (MCMC-MLE)
 ## The exchange algorithm
-## Pseudo-marginal MCMC (optional)
+## The Double Metropolis-Hastings algorithm
 
 # Results
 

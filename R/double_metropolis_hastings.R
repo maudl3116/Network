@@ -75,34 +75,8 @@
 #   return(list(parameters=old_theta,estimates=path))
 # }
 
-trunc_norm <- function(old_theta, lower_theta, upper_theta){
-  #out <- rtmvnorm(n=1, mean=old_theta, lower=lower_theta, upper=upper_theta, algorithm="rejection")
-  out <-  rmvnorm(n=1, mean=old_theta, sigma=5*diag(length(old_theta)), method="chol")
-}
 
-statistics_network <- function(proposed_u){
-
-  g <- asIgraph(proposed_u)
-  S1 <- network.edgecount(proposed_u)
-  S2 <- length(cliques(g,min=3,max=3))
-
-}
-
-log_prior_theta <- function(theta){
-  #theta_1 <- dnorm(theta[1], mean=0, sd=sqrt(30), log=TRUE)
-  #theta_2 <- dnorm(theta[2], mean=0, sd=sqrt(30), log=TRUE)
-  theta_1 <- dunif(theta[1],0,15,log=TRUE)
-  theta_2 <- dunif(theta[2],0,15,log=TRUE)
-  return(theta_1+theta_2)
-}
-
-log_theta_kernel <- function(proposed_theta, old_theta){
-  dmvnorm(proposed_theta, mean=old_theta, sigma=5*diag(length(old_theta)), log=TRUE)
-}
-
-
-
-DMH = function(Y, COV, thetas, mcmc_iter, gibbs_cycles){
+DMH = function(Y, COV, thetas, mcmc_iter, gibbs_cycles,a){
 
   # Initialisation
   nCOVcols = ncol(COV)                #   number of parameters
@@ -114,10 +88,8 @@ DMH = function(Y, COV, thetas, mcmc_iter, gibbs_cycles){
 
   for(iter in seq(1:mcmc_iter)){
 
-    print(iter)
-    if( (iter > 1000) & (iter <= 10000) ){ # adaptively update COV until 10000 iterations
-      COV = cov(thetas)
-    }
+    if(iter%%100==0) print(iter)
+
 
     for(i in seq(1:nCOVcols)){
       thetaprev[i] = thetas[iter,i]
@@ -130,10 +102,11 @@ DMH = function(Y, COV, thetas, mcmc_iter, gibbs_cycles){
     statprop = Summary(U)
 
     #log probability ratio to determine acceptance of Outer MCMC
-    dummy = (thetaprev - thetaprop)*(statprop - stat)
+    #dummy = (thetaprev - thetaprop)*(statprop - stat)
 
+    logprob = log_prior_theta(thetaprop,a)-log_prior_theta(thetaprev,a) + sum(thetaprev*statprop) - sum(thetaprev*stat) + sum(thetaprop*stat) - sum(thetaprop*statprop)
 
-    logprob = dummy[1]
+    #logprob = dummy[1]
     u = log( runif(1) )
 
     if( u < logprob ){
@@ -203,7 +176,13 @@ Gibbs <- function(Y, theta, m){
   return(Y)
 }
 
-
+log_prior_theta <- function(theta,a){
+  theta_1 <- dunif(theta[1],-a,a,log=TRUE)
+  theta_2 <- dunif(theta[2],-a,a,log=TRUE)
+  theta_3 <- dunif(theta[3],-a,a,log=TRUE)
+  theta_4 <- dunif(theta[4],-a,a,log=TRUE)
+  return(theta_1+theta_2+theta_3+theta_4)
+}
 
 Summary=function(A){
   n = nrow(A)
@@ -223,3 +202,4 @@ Summary=function(A){
 
   return(result)
 }
+

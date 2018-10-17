@@ -299,6 +299,15 @@ F_measure_networksize(n=100)
 ```
 
 ## Exchange algorithm
+```{r echo=FALSE,fig.pos="H",fig.height = 4,fig.width=10,fig.align = "center",fig.cap="\\label{fig:exchange}Title"}
+
+env=environment()
+load('ExchangeErgm_10000.RData',env=env)
+env$Liang
+plot(Liang[,1])
+
+```
+
 ## Double Metropolis-Hastings algorithm
 
 # Discussion

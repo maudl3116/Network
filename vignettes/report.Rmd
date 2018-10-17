@@ -44,9 +44,16 @@ with expected degree $\rho(n-1)$. For large $n$ and small $\rho$, this distribut
 
 ### ERGM model
 
-Exponential random graph models are a family of probability distributions on graphs. Let $\mathcal{A}_n$ be the set of all graphs on $n$ vertices, and consider the following model, where $\theta_i,~i=1,2,...,m$ are real valued parameters, and $T_i,~i=1,2,...,m$ are real valued statistics defined on $\mathcal{A}_n$. Possible sufficient statistics for such models are the degree of the vertices, the number of edges, the number of triangles, or the number of connected components.
+Exponential random graph models (ERGM) are a family of probability distributions on graphs. Let $\mathcal{A}_n$ be the set of all graphs on $n$ vertices, and consider the following model, where $\theta_i,~i=1,2,...,m$ are real valued parameters, and $T_i,~i=1,2,...,m$ are real valued statistics defined on $\mathcal{A}_n$. Possible sufficient statistics for such models are the degree of the vertices, the number of edges, the number of k-stars, the number of triangles, or the number of connected components. Altering these features allows us to construct networks which resemble social relationships. For example, triadic closure is a common occurrence in friendship networks, where as explained before, nodes with common neighbours are prone to form ties between them, resulting in a large number of triangles. The general form for an ERGM is
 
-$$P(A=a|\theta)=\frac{1}{Z(\theta)}\exp\left(\sum_{i=1}^m{\theta_iT_i(a)}\right)$$
+$$
+\begin{aligned}
+P(\mbox{A}=a|\theta)&=\frac{1}{Z(\theta)}\exp\left(\sum_{i=1}^m{\theta_iT_i(a)}\right) \\ &=\frac{1}{Z(\theta)}\exp\left[\theta^tT(a)\right],
+\end{aligned}
+$$
+
+where $Z(\theta)$ is a normalisation constant satisfying $Z(\theta)=\sum_{a \in \mathcal{A}_n}\exp\left[\theta^tT(a)\right]$ and $\theta,T(a) \in \mathbb{R}^m$ represent the vector of parameters and the vector of sufficient statistics respectively. The 1-dimensional case with $\theta = \frac{\rho}{1-\rho}$ gives us the expression for the Bernoulli graph. \
+
 ```{r echo=FALSE, fig.align='center', fig.pos="H", out.width = '60%',out.height='60%',fig.cap="\\label{fig:triangle}Example of edge, 2-star, 3-star and triangle"}
 knitr::include_graphics("triangle.png")
 

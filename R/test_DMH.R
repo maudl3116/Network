@@ -16,11 +16,12 @@ summary(formula)
 #### Conduct Liang's DMH ###
 outer = 1000  # was 30,000
 cycle = 20                   # inner sampler is cycle*N(N-1)/2
-COV = diag(0.0025,4)
+COV = diag(0.0225,4)
 initial = matrix(m$coef,outer+1,4)
+a=5
 
 ptm <- proc.time()
-Liang = DMH(X, COV, initial, outer, cycle)
+Liang = DMH(X, COV, initial, outer, cycle,a)
 ptme <- proc.time()
 ptme - ptm
 
@@ -42,16 +43,18 @@ hist(Liang[,4])
 
 # quantitative analaysis
 bmmat(Liang)  # applies batch means for each parameter trace
-HPDinterval(as.mcmc(Liang), prob = 0.95)   # ? problem highest probability density intervals
+#HPDinterval(as.mcmc(Liang), prob = 0.95)   # ? problem highest probability density intervals
 length(unique(Liang[,1]))/outer
 ess(Liang[,1])  # effective sample size
 Ltime = (ptme - ptm)[[1]]
 
 
-Liangsummary = rbind( t(bmmat(Liang)), HPDinterval(as.mcmc(Liang), prob = 0.95)[,1],
-                      HPDinterval(as.mcmc(Liang), prob = 0.95)[,2], c(ess(Liang[,1]),ess(Liang[,2]),ess(Liang[,3]),ess(Liang[,4])),
+# Liangsummary = rbind( t(bmmat(Liang)), HPDinterval(as.mcmc(Liang), prob = 0.95)[,1],
+#                       HPDinterval(as.mcmc(Liang), prob = 0.95)[,2], c(ess(Liang[,1]),ess(Liang[,2]),ess(Liang[,3]),ess(Liang[,4])),
+#                       rep(length(unique(Liang[,1]))/outer,4), rep(Ltime,4))
+Liangsummary = rbind( t(bmmat(Liang)), c(ess(Liang[,1]),ess(Liang[,2]),ess(Liang[,3]),ess(Liang[,4])),
                       rep(length(unique(Liang[,1]))/outer,4), rep(Ltime,4))
-
 save(Liangsummary ,Liang, file = "LiangErgm.RData")
 
 
+bmmat(Liang)

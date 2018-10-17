@@ -96,8 +96,8 @@ P(\mbox{data}|A, \theta)
 Combining this equation with the prior model for the network involving $\rho$ that we defined above, we obtain
 $$\begin{aligned}
 P(A,\theta|\mbox{data})
-&=\frac{1}{P(data)}\prod_{i<j}\left(\alpha^{E_{i,j}}(1-\alpha)^{N_{i,j}-E_{i,j}}\right)^{A_{i,j}}\left(\beta^{E_{i,j}}(1-\beta)^{N_{i,j}-E_{i,j}}\right)^{1-A_{i,j}} p(A)p(\theta) \\
-&=\frac{1}{P(data)}\prod_{i<j}\left(\rho \alpha^{E_{i,j}}(1-\alpha)^{N_{i,j}-E_{i,j}}\right)^{A_{i,j}}\left((1-\rho)\beta^{E_{i,j}}(1-\beta)^{N_{i,j}-E_{i,j}}\right)^{1-A_{i,j}}.
+&=\frac{1}{P(\mbox{data})}\prod_{i<j}\left(\alpha^{E_{i,j}}(1-\alpha)^{N_{i,j}-E_{i,j}}\right)^{A_{i,j}}\left(\beta^{E_{i,j}}(1-\beta)^{N_{i,j}-E_{i,j}}\right)^{1-A_{i,j}} p(A)p(\theta) \\
+&=\frac{1}{P(\mbox{data})}\prod_{i<j}\left(\rho \alpha^{E_{i,j}}(1-\alpha)^{N_{i,j}-E_{i,j}}\right)^{A_{i,j}}\left((1-\rho)\beta^{E_{i,j}}(1-\beta)^{N_{i,j}-E_{i,j}}\right)^{1-A_{i,j}}.
 \end{aligned}$$
 
 ## The EM (expectation-maximization) algorithm{-}
@@ -134,18 +134,17 @@ $$\begin{pseudocode}[shadowbox]{EM}{\alpha^{(0)},\beta^{(0)}, \rho^{(0)}}
 \end{pseudocode}$$
 
 ## Inference for the ERGM model
-
-
 The aim of this section is to discuss how a bayesian estimation of the parameters $\theta=\{\theta_A, \theta_Y\}$ can be performed. In our case, we cannot use a vanilla Metropolis Hastings algorithm with $p(\theta|Y)$ as a target distribution, for the following reasons:
 
-* The normalising constant $Z(\theta)$ is intractable. This problem is would also arise in the case where the network is completely observed. 
+* The normalizing function $Z(\theta)$ is intractable, and since it depends on $\theta$ it does not cancel out in the acceptance probability. This problem is would also arise in the case where the network is completely observed. 
 
-* The likelihood appearing in the acceptance ratio is intractable, since we would have to sum over all the states that the hidden variable $A$ can take, with $A$ a binary vector of size $n$.
+* The likelihood appearing in the acceptance ratio is intractable, since we would have to sum over all the states that the hidden variable $A$ can take ($2^{n(n-1)/2}$ configurations since the $n(n-1)/2$ edges can be in two states).
 
+$$
+\begin{split}\alpha_{MH}(\theta,\theta') &= min\left\{1,\frac{p(y|\theta')p(\theta')q(\theta|\theta')}{p(y|\theta)p(\theta)q(\theta'|\theta)}\right\} \\ &= min\left\{1,\frac{\sum_Ap(y|\theta',A)p(A|\theta')p(\theta')q(\theta|\theta')}{\sum_Ap(y|\theta,A)p(A|\theta)p(\theta)q(\theta'|\theta)}\right\} \end{split}
+$$
 
-$$\alpha_{MH}(\theta,\theta')= 1 \land \frac{p(Y|\theta')p(\theta')q(\theta|\theta')}{p(Y|\theta)p(\theta)q(\theta'|\theta)}$$
-
-$$p(Y|\theta)=\sum_Ap(Y|\theta,A)p(A|\theta) $$
+For this report, we have decided to restrict our study to the case where the observations are supposed to be drawn from an ERGM probability distribution, without modelling any noise. In this settings we use the following notation: $x$ a random variable drawn from an ERGM model with unnormalized probability model $h(x|\theta)=\exp(\theta^TT(x))$ and normalizing function $Z(\theta)$. Generalizing this model to the case of noisy observations is out of scope for this report.
 
 ## Maximum Pseudolikelihood estimation (MPML){-}
 Recall the general form of the ERGM:

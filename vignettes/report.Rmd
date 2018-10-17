@@ -19,7 +19,7 @@ abstract: "We have implemented an R package to estimate the parameters of expone
 ---
 # Introduction
 ## Problem formulation and motivation
-The true network structure is drawn from $P(A|\theta_A)$. We will later constrain this distribution to belong to the exponential random graph models family. The observations of the network are supposed to be noisy. The network structure and the observations are related to one another by $P(data|A,\theta_Y)$. Our aim is to infer the parameters $\theta=\{\theta_A,\theta_Y\}$ through the posterior distribution $P(\theta|data)$. $$P(\theta|data)\propto \sum_AP(data|A,\theta_Y)P(A|\theta_A)P(\theta)$$ This optimisation problem is hard since the function is often non convex, might have many local maxima and no analytical solutions. In our model, as illustrated on Figure \ref{fig:graph_model}, we have two unknowns: the latent variables and the parameters. We also suppose that the underlying network is probed $k$ times.  
+The true network structure is drawn from $P(A|\theta_A)$. We will later constrain this distribution to belong to the exponential random graph models family. The observations of the network are supposed to be noisy. The network structure and the observations are related to one another by $P(\mbox{data}|A,\theta_Y)$. Our aim is to infer the parameters $\theta=\{\theta_A,\theta_Y\}$ through the posterior distribution $P(\theta|\mbox{data})$. $$P(\theta|\mbox{data})\propto \sum_AP(\mbox{data}|A,\theta_Y)P(A|\theta_A)P(\theta)$$ This optimisation problem is hard since the function is often non convex, might have many local maxima and no analytical solutions. In our model, as illustrated on Figure \ref{fig:graph_model}, we have two unknowns: the latent variables and the parameters. We also suppose that the underlying network is probed $k$ times.  
 
 ```{r pressure, echo=FALSE, fig.pos="H", out.width = '65%',fig.cap="\\label{fig:graph_model}Graphical Model"}
 knitr::include_graphics("GM2.png")
@@ -96,7 +96,7 @@ P(A,\theta|\mbox{data})
 &=\frac{1}{P(data)}\prod_{i<j}\left(\rho \alpha^{E_{i,j}}(1-\alpha)^{N_{i,j}-E_{i,j}}\right)^{A_{i,j}}\left((1-\rho)\beta^{E_{i,j}}(1-\beta)^{N_{i,j}-E_{i,j}}\right)^{1-A_{i,j}}.
 \end{aligned}$$
 
-## The EM (expectation-maximization) algorithm
+## The EM (expectation-maximization) algorithm{-}
 
 **E-step**
 
@@ -143,7 +143,7 @@ $$\alpha_{MH}(\theta,\theta')= 1 \land \frac{p(Y|\theta')p(\theta')q(\theta|\the
 
 $$p(Y|\theta)=\sum_Ap(Y|\theta,A)p(A|\theta) $$
 
-## Maximum Pseudolikelihood estimation (MPML)
+## Maximum Pseudolikelihood estimation (MPML){-}
 Recall the general form of the ERGM:
 $$
 P(\mbox{A}=a|\theta)=\frac{1}{Z(\theta)}\exp\left[\theta^tT(a)\right].$$
@@ -161,10 +161,10 @@ $$\frac{P(a_{ij}=1|a_{ij}^c)}{P(a_{ij}=0|a_{ij}^c)}=\exp \left[\theta^t\left(T(a
 Therefore,
 $$\mbox{logit } P(a_{ij}=1|a_{ij}^c)= \theta^t\left[T(a_{ij}^+)-T(a_{ij}^-)\right]=\theta^t \Delta T_{ij},$$
 
-where $\Delta T_{ij}=T(a_{ij}^+)-T(a_{ij}^-)$ is the vector of changes in T(a) when the entry $a_{ij}$ changes from 1 to 0. These conditional probabilities do not involve $Z(\theta)$ so we can maximise the pseudolikelihood function using logistic regression. 
+where $\Delta T_{ij}=T(a_{ij}^+)-T(a_{ij}^-)$ is the vector of changes in T(a) when the entry $a_{ij}$ changes from 1 to 0. These conditional probabilities do not involve $Z(\theta)$ so we can maximise the pseudolikelihood function using logistic regression. However, it is hard to quantify the uncertainty around these estimates.
 
-## Markov Chain Monte Carlo Maximum Likelihood estimation (MCMC-MLE)
-Snijders (2002) introduces a method for estimating $\theta$ based on a Markov Chain Monte Carlo (MCMC) approximation of the MLE. The log-likelihood function is not evaluated directly. Instead, we take log ratios of the likelihood under proposed parameters $\theta$ and initial value of parameters $\theta_0$. We start by re-centering $P(\mbox{A}=a|\theta)=\frac{1}{Z(\theta)}\exp\left[\theta^tT(a)\right]$ around some value $a$ for which $T(a)=0$. Then, the log-likelihood can then be written as:
+## Markov Chain Monte Carlo Maximum Likelihood estimation (MCMC-MLE){-}
+Snijders (2002) introduces a method for estimating $\theta$ based on a Markov Chain Monte Carlo (MCMC) approximation of the MLE where the log-likelihood function is not evaluated directly. Instead, we take log ratios of the likelihood under proposed parameters $\theta$ and initial value of parameters $\theta_0$. We start by re-centering $P(\mbox{A}=a|\theta)=\frac{1}{Z(\theta)}\exp\left[\theta^tT(a)\right]$ around some value $a$ for which $T(a)=0$. Then, the log-likelihood can then be written as:
 $$
 \begin{aligned}
 \mbox{loglik }\theta=\log L(\theta|a) 
@@ -174,7 +174,23 @@ $$
 \end{aligned}
 $$
 
-## The Exchange Algorithm
+Therefore, taking log ratios and using the law of large numbers, we get
+$$
+\begin{aligned}
+\mbox{loglik }\theta - \mbox{loglik }\theta_0 
+&= - \log Z(\theta) + \log Z(\theta_0)\\
+&= - \log \frac{Z(\theta)}{Z(\theta_0)}\\
+&= - \log E _{\theta_0}\left[ \exp \left((\theta-\theta_0)^tT(a)\right) \right]\\
+& \approx - \log \left( \frac{1}{L} \sum ^L_{i=1} \exp \left[(\theta-\theta_0)^tT(a^{(i)})\right] \right),
+\end{aligned}
+$$
+
+where $a^{(1)}\dots a^{(L)}$ are a random sample of ERGM networks with parameter vector $\theta_0$. By differentiating on both sides, we obtain an approximate score function which can be iteratively approximately optimised using Newton-Raphson or Fisher scoring:
+$$s(\theta)\approx - \frac{\partial}{\partial\theta} \log \left( \frac{1}{L} \sum ^L_{i=1} \exp \left[(\theta-\theta_0)^tT(a^{(i)})\right] \right).$$
+
+To simulate the $L$ networks, we use the Metropolis Hastings algorithm provided by Snijders. We start with a graph $a^{(0)} \in \mathcal{A}_n$ —the set of all graphs on $n$ nodes— and proceed as follows for $k \in \{0\dots~L-1\}$:
+
+## The Exchange Algorithm{-}
 The exchange algorithm (\cite{murray2012mcmc}) falls within the class of *auxiliary variable approaches*, which consist in introducing an auxiliary variable $u$ with a well-chosen conditional density $f(u|\theta,x)$ so that the intractable normalizing function cancels out in the Metropolis-Hastings acceptance probability. In the exchange algorithm, the auxiliary variable follows $h(u|\theta^*)/Z(\theta^*)$. Therefore the augmented target is:
 
 $$\begin{split}\pi(\theta,\theta^*,u|x) & \propto p(\theta)p(x|\theta)q(\theta^*|\theta)p(u|\theta^*) \\ & = p(\theta)\frac{h(x|\theta)}{Z(\theta)}q(\theta^*|\theta)\frac{h(u|\theta^*)}{Z(\theta^*)}\end{split}$$
@@ -184,7 +200,7 @@ $$\begin{split}\pi(\theta,\theta^*,u|x) & \propto p(\theta)p(x|\theta)q(\theta^*
 knitr::include_graphics("exchange.png")
 
 ```
-## The Double Metropolis-Hastings algorithm
+## The Double Metropolis-Hastings algorithm{-}
 
 # Results
 

@@ -194,6 +194,16 @@ $$s(\theta)\approx - \frac{\partial}{\partial\theta} \log \left( \frac{1}{L} \su
 
 To simulate the $L$ networks, we use the Metropolis Hastings algorithm provided by Snijders. We start with a graph $a^{(0)} \in \mathcal{A}_n$ —the set of all graphs on $n$ nodes— and proceed as follows for $k \in \{0\dots~L-1\}$:
 
+\begin{algorithm}[H]
+ Given $a_{ij}$ at the $k^{th}$ iteration \\
+ 1. Choose an edge $(i,j)$ at random from $a^{(k)}$ where $i\neq j$ \\ 
+ 2. Calculate $\pi =\frac{P(a_{ij} \mbox{~changes } |a_{ij}^c)}{P(a_{ij} \mbox{~does not change }|a_{ij}^c)}$ \\ 
+ 3. Fix $\delta=\mbox{min}\{1, \pi\}$ and draw $u$ from Bin$(1,\delta)$. \\
+ 4. If $u=0$, set $a^{(k+1)}=a^{(k)}.$ If $u=1$, set $a_{pq}^{(k+1)}=a_{pq}^{(k)}$ for $(p,q)\neq(i,j)$ and $a_{pq}^{(k+1)}=1-a_{pq}^{(k)}$ for $(p,q)=(i,j)$. \\
+ \caption{Metropolis Hastings for MCMCMLE}
+\end{algorithm}
+
+
 ## The Exchange Algorithm{-}
 The exchange algorithm (\cite{murray2012mcmc}) falls within the class of *auxiliary variable approaches*, which consist in introducing an auxiliary variable $u$ with a well-chosen conditional density $f(u|\theta,x)$ so that the intractable normalizing function cancels out in the Metropolis-Hastings acceptance probability. In the case of the exchange algorithm, this conditional density is $\frac{h(u|\theta)}{Z(\theta)}$.
 

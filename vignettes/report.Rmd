@@ -265,15 +265,16 @@ In this section, we propose to validate the model’s estimates using a syntheti
   E <- interact(A,alpha,beta, n,k)
   simulation <- EM(alpha0=0.4, beta0=0.02, rho0=0.15, n, k, E)
 ```
-\newpage
+
 **Results**
 
 In this setting, the stopping criterion is met after `r simulation[5]` `r nIter=simulation[5]` iterations. The figure below, shows the comparison of the ground truth network with the inferred network (obtained by thresholding the posterior probabilities at $t=$ `r t=0.5` `r t`), where the size of the nodes is proportional to their degree.
 
 
-```{r echo=FALSE, fig.pos="H",fig.cap="\\label{fig:comparison}(left) Ground truth underlying network (right) Inferred underlying network"}
+```{r echo=FALSE, fig.pos="H",fig.align="center",out.width='60%',fig.cap="\\label{fig:comparison}(left) Ground truth underlying network (right) Inferred underlying network"}
   out=analyse_results(t,n,k,rho,alpha,beta)
 ```
+\newpage
 
 
 ```{r echo=FALSE,fig.pos="H",fig.height = 2,fig.width=8,fig.align = "center",fig.cap="\\label{fig:figs} Convergence of the parameter estimates"}
@@ -292,7 +293,7 @@ $$
 
 The figure below shows the influence of the number of repeated observations $k$ on the performances of the algorithm. 
 
-```{r echo=FALSE,fig.pos="H",fig.height = 4,fig.width=10,fig.align = "center",fig.cap="\\label{fig:figs}Performance metrics versus the number of repeated observations k"}
+```{r echo=FALSE,fig.pos="H",fig.height = 4,fig.width=10,out.width='70%',fig.align = "center",fig.cap="\\label{fig:figs}Performance metrics versus the number of repeated observations k"}
 par(mfrow=c(1,2))
 F_measure_plot(20, n=100)
 F_measure_networksize(n=100)
@@ -303,11 +304,25 @@ F_measure_networksize(n=100)
 
 env=environment()
 load('ExchangeErgm_10000.RData',env=env)
-env$Liang
-plot(Liang[,1])
+Liang = env$Liang
+par(mfrow=c(2,2))
+ts.plot(Liang[,1], ylab="theta1")
+ts.plot(Liang[,2], ylab="theta2")
+ts.plot(Liang[,3], ylab="theta3")
+ts.plot(Liang[,4], ylab="theta4")
+
+
 
 ```
 
+
+```{r echo=FALSE,fig.pos="H",fig.height = 4,fig.width=10,fig.align = "center",fig.cap="\\label{fig:exchange}Title"}
+par(mfrow=c(2,2))
+hist(Liang[,1], main="Historgam of theta1")
+hist(Liang[,2], main="Historgam of theta2")
+hist(Liang[,3], main="Historgam of theta3")
+hist(Liang[,4], main="Historgam of theta4")
+```
 ## Double Metropolis-Hastings algorithm
 
 # Discussion

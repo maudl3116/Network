@@ -6,7 +6,11 @@ date: "`r Sys.Date()`"
 output: 
   rmarkdown::pdf_document:
       citation_package: natbib
-      extra_dependencies: ["stmaryrd","color","pseudocode"]
+      extra_dependencies:
+        stmaryrd: null
+        color: null
+        algorithm2e: ["ruled", "vlined"]
+        pseudocode: null
       number_sections: true
       fig_caption: yes
       keep_tex: yes
@@ -191,16 +195,42 @@ $$s(\theta)\approx - \frac{\partial}{\partial\theta} \log \left( \frac{1}{L} \su
 To simulate the $L$ networks, we use the Metropolis Hastings algorithm provided by Snijders. We start with a graph $a^{(0)} \in \mathcal{A}_n$ —the set of all graphs on $n$ nodes— and proceed as follows for $k \in \{0\dots~L-1\}$:
 
 ## The Exchange Algorithm{-}
-The exchange algorithm (\cite{murray2012mcmc}) falls within the class of *auxiliary variable approaches*, which consist in introducing an auxiliary variable $u$ with a well-chosen conditional density $f(u|\theta,x)$ so that the intractable normalizing function cancels out in the Metropolis-Hastings acceptance probability. In the exchange algorithm, the auxiliary variable follows $h(u|\theta^*)/Z(\theta^*)$. Therefore the augmented target is:
+The exchange algorithm (\cite{murray2012mcmc}) falls within the class of *auxiliary variable approaches*, which consist in introducing an auxiliary variable $u$ with a well-chosen conditional density $f(u|\theta,x)$ so that the intractable normalizing function cancels out in the Metropolis-Hastings acceptance probability. In the case of the exchange algorithm, this conditional density is $\frac{h(u|\theta)}{Z(\theta)}$.
 
-$$\begin{split}\pi(\theta,\theta^*,u|x) & \propto p(\theta)p(x|\theta)q(\theta^*|\theta)p(u|\theta^*) \\ & = p(\theta)\frac{h(x|\theta)}{Z(\theta)}q(\theta^*|\theta)\frac{h(u|\theta^*)}{Z(\theta^*)}\end{split}$$
+The exchange algorithm augments the state from $\theta$ to $(\theta, \theta', u)$ and targets the augmented joint density
 
+$$\begin{split}\pi(\theta,\theta',u|x) & \propto p(\theta)L(\theta|x)q(\theta'|\theta)L(\theta'|u) \\ & = p(\theta)\frac{h(x|\theta)}{Z(\theta)}q(\theta'|\theta)\frac{h(u|\theta')}{Z(\theta')}\end{split}$$.
+with a symmetric swapping proposal between the states $\{\theta',\theta\}$ and $\{\theta,\theta'\}$. Therefore the acceptance probability is 
+
+$$\alpha=min \left\{1,\frac{\pi(\theta',\theta,u|x)}{\pi(\theta,\theta',u|x)}\right\}=min\left\{1,\frac{p(\theta')h(x|\theta')h(u|\theta)q(\theta|\theta')}{p(\theta)h(x|\theta)h(u|\theta')q(\theta'|\theta)}\right\}$$
 
 ```{r echo=FALSE, fig.align='center', fig.pos="H", out.width = '20%',out.height='20%',fig.cap="\\label{fig:triangle}The augmented model"}
 knitr::include_graphics("exchange.png")
 
 ```
+
+\begin{algorithm}[H]
+ Given $\theta_n \in \Theta$ at the $n^{th}$ iteration \\
+ 1. Propose $\theta' \sim q(\cdot|\theta_n)$ \\ 
+ 2. Generate the auxiliary variable $u \sim \frac{h(\cdot|\theta')}{Z(\theta')}$ \\ 
+ 3. Accept $\theta_{n+1}$ with probability $\alpha = min\left\{1, \frac{p(\theta')h(x|\theta')h(u|\theta_n)q(\theta_n|\theta')}{p(\theta_n)h(x|\theta_n)h(u|\theta')q(\theta'|\theta_n)}\right\}$\\
+ ~~~~Reject otherwise
+ \caption{Exchange algorithm}
+\end{algorithm}
+
+
+
 ## The Double Metropolis-Hastings algorithm{-}
+
+\begin{algorithm}[H]
+ Given $\theta_n \in \Theta$ at the $n^{th}$ iteration \\
+ 1. Propose $\theta' \sim q(\cdot|\theta_n)$ \\ 
+ 2. Generate the auxiliary variable using $m$ MH-updates 
+ ~~$u \sim T^m_{\theta'}(.|x)$ \\ 
+3. Accept $\theta_{n+1}$ with probability $\alpha = min\left\{1, \frac{p(\theta'){\color{blue}T^m_{\theta'}(x|u)}h(u|\theta_n)q(\theta_n|\theta')}{p(\theta_n)h(x|\theta_n){\color{blue}T^m_{\theta'}(u|x)}q(\theta'|\theta_n)}\right\}$\\
+ ~~~~Reject otherwise 
+ \caption{Double Metropolis-Hastings algorithm}
+\end{algorithm}
 
 # Results
 

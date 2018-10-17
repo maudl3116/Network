@@ -6,107 +6,89 @@
 #' @param mcmc_iter The number of iterations of the MCMC algorithm
 #' @examples
 
-ergm_no_noise_fit <- function(n, yobs, initial_theta, lower_theta, upper_theta, mcmc_iter){
-  print('hi')
-  print(n)
-  # to do:
-  # test with different priors
-  # put several observations
+exchange <- function(X, COV, mcmc_iter, thetas, a){
+
+   n = ncol(X)
+
+  statistics_x <- Summary(X)
+
+  old_theta <- thetas[1,]
 
 
-  old_theta <- initial_theta
-
-  # create net_0 of n nodes, used by the ergm simulator later
-  m <- matrix(rbinom(n*n,1,.5),n,n)
-  diag(m) <- 0
-  net_0=network(m,directed=FALSE)
-
-  path = matrix(0,mcmc_iter,2)
-
-  for(iter in seq(1:mcmc_iter)){
+  for(iter in seq(2:mcmc_iter+1)){
 
     # sample new parameters to propose
-    proposed_theta <- trunc_norm(old_theta, lower_theta, upper_theta)
+    proposed_theta <- rmvnorm(n=1, mean=old_theta, COV, method="chol")
 
-    if(any(proposed_theta) <= 0){
+    proposed_theta <- as.vector(proposed_theta)
 
-      path[iter,]=old_theta
+    # sample auxiliary variable from the likelihood at theta=proposed_theta
+    proposed_u <- simulate(network(n,directed=FALSE)~edges+kstar(2) + kstar(3)+triangles, coef=proposed_theta)
+    proposed_u <- as.matrix(proposed_u)
+    # compute h()
+    statistics_proposed_u <- Summary(proposed_u)
+    log_ratio_u <- sum(old_theta*statistics_proposed_u)-sum(proposed_theta*statistics_proposed_u)
+    log_ratio_x <- sum(proposed_theta*statistics_x)-sum(old_theta*statistics_x)
 
-    }else{
+    # compute the other values appearing in the log acceptance ratio
 
-      proposed_theta <- as.vector(proposed_theta)
-
-      # sample auxiliary variable from the likelihood at theta=proposed_theta
-      proposed_u <- simulate(~edges+triangles,coef=proposed_theta,basis=net_0,control=control.simulate(MCMC.burnin=1000,MCMC.interval=1))
-
-      # compute the approximation of the log-ratio of the partition functions
-      statistics_proposed_u <- statistics_network(proposed_u)
-      log_ratio_partitions_est <- sum(old_theta*statistics_proposed_u)-sum(proposed_theta*statistics_proposed_u)
-
-      # compute the other values appearing in the log acceptance ratio
-
-      # priors
-      log_prior_theta_old <- log_prior_theta(old_theta)
-      log_prior_theta_proposed <- log_prior_theta(proposed_theta)
-
-      # transitions  (assume symmatric for now)
-      #log_theta_old <- log_theta_kernel(proposed_theta, old_theta)
-      #log_theta_proposed <- log_theta_kernel(old_theta, proposed_theta)
-      log_theta_old <- 0
-      log_theta_proposed <- 0
+    # priors
+    log_prior_theta_old <- log_prior_theta(old_theta,a)
+    log_prior_theta_proposed <- log_prior_theta(proposed_theta,a)
 
 
-      # unnormalised likelihoods
-      yobs_stats <- statistics_network(yobs)
-      log_likelihood_old <- sum(yobs_stats*old_theta)
-      log_likelihood_proposed <- sum(yobs_stats*proposed_theta)
-
-
-      # form the acceptance rate
-      a <- log_likelihood_proposed - log_likelihood_old + log_ratio_partitions_est + log_prior_theta_proposed - log_prior_theta_old + log_theta_proposed - log_theta_old
+    # form the acceptance rate
+    r <-log_prior_theta_proposed - log_prior_theta_old + log_ratio_u + log_ratio_x
 
       # accept-reject
-      tmp = runif(1)
+    tmp = runif(1)
 
-      if( log(tmp) < a){
+    if( log(tmp) < r){
         old_theta <- proposed_theta
-      }
-
-
-      path[iter,]=old_theta
-      if (iter%%100==0){
-        print(iter)
-        remove = c(iter:length(path[,1]))
-        plot(path[-remove,1],type="l")
-        plot(path[-remove,2],type="l")
-      }
+    }
+    else{
+      old_theta <- old_theta
     }
 
+
+    thetas[iter,] = old_theta
+
+    if (iter%%100==0){
+        print(iter)
+        remove = c(iter:length(thetas[,1]))
+        plot(thetas[-remove,1],type="l")
+        plot(thetas[-remove,2],type="l")
+      }
   } # end iterations
-  return(list(parameters=old_theta,estimates=path))
+  return(thetas)
 }
 
-trunc_norm <- function(old_theta, lower_theta, upper_theta){
-  #out <- rtmvnorm(n=1, mean=old_theta, lower=lower_theta, upper=upper_theta, algorithm="rejection")
-  out <-  rmvnorm(n=1, mean=old_theta, sigma=5*diag(length(old_theta)), method="chol")
+
+
+log_prior_theta <- function(theta,a){
+  theta_1 <- dunif(theta[1],-a,a,log=TRUE)
+  theta_2 <- dunif(theta[2],-a,a,log=TRUE)
+  theta_3 <- dunif(theta[3],-a,a,log=TRUE)
+  theta_4 <- dunif(theta[4],-a,a,log=TRUE)
+  return(theta_1+theta_2+theta_3+theta_4)
 }
 
-statistics_network <- function(proposed_u){
+Summary = function(A){
+  n = nrow(A)
+  star = apply(A,1,sum)
+  result = numeric(4)
 
-  g <- asIgraph(proposed_u)
-  S1 <- network.edgecount(proposed_u)
-  S2 <- length(cliques(g,min=3,max=3))
+  for(i in seq(1:n)){
+    result[1] = result[1] + choose(star[i],1)
+    result[2] = result[2] + choose(star[i],2)
+    result[3] = result[3] + choose(star[i],3)
+  }
+  result[1]=result[1]/2
+  for(k in seq(1:n)){
+    for(j in seq(1:k+1)){
+      for(i in seq(1:j+1)){
+        result[4] = result[4] + A[i,k]*A[k,j]*A[j,i] }}}
 
+  return(result)
 }
 
-log_prior_theta <- function(theta){
-  #theta_1 <- dnorm(theta[1], mean=0, sd=sqrt(30), log=TRUE)
-  #theta_2 <- dnorm(theta[2], mean=0, sd=sqrt(30), log=TRUE)
-  theta_1 <- dunif(theta[1],0,15,log=TRUE)
-  theta_2 <- dunif(theta[2],0,15,log=TRUE)
-  return(theta_1+theta_2)
-}
-
-log_theta_kernel <- function(proposed_theta, old_theta){
-  dmvnorm(proposed_theta, mean=old_theta, sigma=5*diag(length(old_theta)), log=TRUE)
-}

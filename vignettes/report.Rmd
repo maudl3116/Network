@@ -6,7 +6,10 @@ date: "`r Sys.Date()`"
 output: 
   rmarkdown::pdf_document:
       citation_package: natbib
-      extra_dependencies: ["stmaryrd","color","pseudocode"]
+      extra_dependencies:
+        stmaryrd: null
+        color: null
+        algorithm2e: ["ruled", "vlined"]
       number_sections: true
       fig_caption: yes
       keep_tex: yes
@@ -15,6 +18,7 @@ vignette: >
   %\VignetteIndexEntry{Vignette Title}
   %\VignetteEngine{knitr::rmarkdown}
   \usepackage[utf8]{inputenc}
+  \usepackage[linesnumbered,lined,boxed,commentsnumbered]{algorithm2e} 
 abstract: "We have implemented an R package to estimate the parameters of exponential random graph models (ERG models), in the case where the data consists of noisy observations of the underlying hidden structure. The first part of this report focusses on the Bernouilli (or Erdos Renyi) model, performing inference via the Expectation Maximization algorithm, while the second part explores other ERG models, for which Bayesian parameter estimation is more challenging."  
 ---
 # Introduction
@@ -112,22 +116,22 @@ $$\begin{split}P(A,\theta|\mbox{data})&=\frac{1}{P(\mbox{data})}\prod_{i<j}\left
 
 To simplify the notations, let $Q_{i,j}=P(A_{i,j}=1|data,\theta)=\sum_{A}{q(A)A_{i,j}}.$
 
-$$\begin{pseudocode}[shadowbox]{EM}{\alpha^{(0)},\beta^{(0)}, \rho^{(0)}}
-(\alpha,\beta, \rho) \leftarrow (\alpha^{(0)},\beta^{(0)}, \rho^{(0)}) \\
+\begin{algorithm}
+$(\alpha,\beta, \rho) \leftarrow (\alpha^{(0)},\beta^{(0)}, \rho^{(0)})$ \\
 \\ 
-\WHILE \mbox{stopping criterion is not met} \DO 
-\BEGIN
-\mbox{E step:}\\ 
-~~~Q_{i,j} \leftarrow \frac{\rho\alpha^{E_{i,j}}(1-\alpha)^{N-E_{i,j}}}{\rho\alpha^{E_{i,j}}(1-\alpha)^{N-E_{i,j}}+(1-\rho)\beta^{E_{i,j}}(1-\beta)^{N-E_{i,j}}}\\
-\mbox{M step:} \\
-\BEGIN
-~~~\alpha \leftarrow \frac{\sum_{i<j}E_{i,j}Q_{i,j}}{N\sum_{i<j}Q_{i,j}} \\
-~~~\beta \leftarrow \frac{\sum_{i<j}E_{i,j}(1-Q_{i,j})}{N\sum_{i<j}(1-Q_{i,j})} \\
-~~~\rho \leftarrow \frac{1}{{n \choose 2}}\sum_{i<j}Q_{i,j}
-\END
-\END \\ 
-\RETURN{Q,\alpha,\beta, \rho}
-\end{pseudocode}$$
+\While(stopping criterion is not met) \Do
+\Begin
+E step:\\ 
+$~~~Q_{i,j} \leftarrow \frac{\rho\alpha^{E_{i,j}}(1-\alpha)^{N-E_{i,j}}}{\rho\alpha^{E_{i,j}}(1-\alpha)^{N-E_{i,j}}+(1-\rho)\beta^{E_{i,j}}(1-\beta)^{N-E_{i,j}}}$\\
+M step: \\
+\Begin
+$~~~\alpha \leftarrow \frac{\sum_{i<j}E_{i,j}Q_{i,j}}{N\sum_{i<j}Q_{i,j}}$ \\
+$~~~\beta \leftarrow \frac{\sum_{i<j}E_{i,j}(1-Q_{i,j})}{N\sum_{i<j}(1-Q_{i,j})}$ \\
+$~~~\rho \leftarrow \frac{1}{{n \choose 2}}\sum_{i<j}Q_{i,j}$
+\End
+\End
+\Return{$Q,\alpha,\beta, \rho}$
+\end{algorithm}
 
 ## Inference for the ERGM model
 
@@ -146,16 +150,42 @@ $$p(Y|\theta)=\sum_Ap(Y|\theta,A)p(A|\theta) $$
 ## Pseudolikelihood estimation
 ## Markov Chain Monte Carlo Maximum Likelihood estimation (MCMC-MLE)
 ## The Exchange Algorithm
-The exchange algorithm (\cite{murray2012mcmc}) falls within the class of *auxiliary variable approaches*, which consist in introducing an auxiliary variable $u$ with a well-chosen conditional density $f(u|\theta,x)$ so that the intractable normalizing function cancels out in the Metropolis-Hastings acceptance probability. In the exchange algorithm, the auxiliary variable follows $h(u|\theta^*)/Z(\theta^*)$. Therefore the augmented target is:
+The exchange algorithm (\cite{murray2012mcmc}) falls within the class of *auxiliary variable approaches*, which consist in introducing an auxiliary variable $u$ with a well-chosen conditional density $f(u|\theta,x)$ so that the intractable normalizing function cancels out in the Metropolis-Hastings acceptance probability. In the case of the exchange algorithm, this conditional density is $\frac{h(u|\theta)}{Z(\theta)}$.
 
-$$\begin{split}\pi(\theta,\theta^*,u|x) & \propto p(\theta)p(x|\theta)q(\theta^*|\theta)p(u|\theta^*) \\ & = p(\theta)\frac{h(x|\theta)}{Z(\theta)}q(\theta^*|\theta)\frac{h(u|\theta^*)}{Z(\theta^*)}\end{split}$$
+The exchange algorithm augments the state from $\theta$ to $(\theta, \theta', u)$ and targets the augmented joint density
 
+$$\begin{split}\pi(\theta,\theta',u|x) & \propto p(\theta)L(\theta|x)q(\theta'|\theta)L(\theta'|u) \\ & = p(\theta)\frac{h(x|\theta)}{Z(\theta)}q(\theta'|\theta)\frac{h(u|\theta')}{Z(\theta')}\end{split}$$.
+with a symmetric swapping proposal between the states $\{\theta',\theta\}$ and $\{\theta,\theta'\}$. Therefore the acceptance probability is 
+
+$$\alpha=min \left\{1,\frac{\pi(\theta',\theta,u|x)}{\pi(\theta,\theta',u|x)}\right\}=min\left\{1,\frac{p(\theta')h(x|\theta')h(u|\theta)q(\theta|\theta')}{p(\theta)h(x|\theta)h(u|\theta')q(\theta'|\theta)}\right\}$$
 
 ```{r echo=FALSE, fig.align='center', fig.pos="H", out.width = '20%',out.height='20%',fig.cap="\\label{fig:triangle}The augmented model"}
 knitr::include_graphics("exchange.png")
 
 ```
+
+\begin{algorithm}[H]
+ Given $\theta_n \in \Theta$ at the $n^{th}$ iteration \\
+ 1. Propose $\theta' \sim q(\cdot|\theta_n)$ \\ 
+ 2. Generate the auxiliary variable $u \sim \frac{h(\cdot|\theta')}{Z(\theta')}$ \\ 
+ 3. Accept $\theta_{n+1}$ with probability $\alpha = min\left\{1, \frac{p(\theta')h(x|\theta')h(u|\theta_n)q(\theta_n|\theta')}{p(\theta_n)h(x|\theta_n)h(u|\theta')q(\theta'|\theta_n)}\right\}$\\
+ ~~~~Reject otherwise
+ \caption{Exchange algorithm}
+\end{algorithm}
+
+
+
 ## The Double Metropolis-Hastings algorithm
+
+\begin{algorithm}[H]
+ Given $\theta_n \in \Theta$ at the $n^{th}$ iteration \\
+ 1. Propose $\theta' \sim q(\cdot|\theta_n)$ \\ 
+ 2. Generate the auxiliary variable using $m$ MH-updates 
+ ~~$u \sim T^m_{\theta'}(.|x)$ \\ 
+3. Accept $\theta_{n+1}$ with probability $\alpha = min\left\{1, \frac{p(\theta'){\color{blue}T^m_{\theta'}(x|u)}h(u|\theta_n)q(\theta_n|\theta')}{p(\theta_n)h(x|\theta_n){\color{blue}T^m_{\theta'}(u|x)}q(\theta'|\theta_n)}\right\}$\\
+ ~~~~Reject otherwise 
+ \caption{Double Metropolis-Hastings algorithm}
+\end{algorithm}
 
 # Results
 

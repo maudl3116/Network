@@ -8,6 +8,8 @@ m$coef
 
 # summary statistics for data X
 X = as.matrix(flobusiness)
+g=graph_from_adjacency_matrix(X)
+plot(g, layout=layout.auto, vertex.size=6, vertex.label=NA, edge.arrow.size=0.2,vertex.color="light blue")
 Summary(X)
 summary(formula)
 

@@ -52,7 +52,7 @@ P(\mbox{A}=a|\theta)&=\frac{1}{Z(\theta)}\exp\left(\sum_{i=1}^m{\theta_iT_i(a)}\
 \end{aligned}
 $$
 
-where $Z(\theta)$ is a normalisation constant satisfying $Z(\theta)=\sum_{a \in \mathcal{A}_n}\exp\left[\theta^tT(a)\right]$ and $\theta,T(a) \in \mathbb{R}^m$ represent the vector of parameters and the vector of sufficient statistics respectively. The 1-dimensional case with $\theta = \frac{\rho}{1-\rho}$ gives us the expression for the Bernoulli graph. \
+where $Z(\theta)$ is a normalisation constant satisfying $Z(\theta)=\sum_{a \in \mathcal{A}_n}\exp\left[\theta^tT(a)\right]$ and $\theta,T(a) \in \mathbb{R}^m$ represent the vector of parameters and the vector of sufficient statistics respectively. The 1-dimensional case with $\theta = \frac{\rho}{1-\rho}$ and $T(a)=\sum_{i,j}{a_{ij}}$ gives the expression for the Bernoulli graph. \
 
 ```{r echo=FALSE, fig.align='center', fig.pos="H", out.width = '60%',out.height='60%',fig.cap="\\label{fig:triangle}Example of edge, 2-star, 3-star and triangle"}
 knitr::include_graphics("triangle.png")
@@ -143,8 +143,37 @@ $$\alpha_{MH}(\theta,\theta')= 1 \land \frac{p(Y|\theta')p(\theta')q(\theta|\the
 
 $$p(Y|\theta)=\sum_Ap(Y|\theta,A)p(A|\theta) $$
 
-## Pseudolikelihood estimation
+## Maximum Pseudolikelihood estimation (MPML)
+Recall the general form of the ERGM:
+$$
+P(\mbox{A}=a|\theta)=\frac{1}{Z(\theta)}\exp\left[\theta^tT(a)\right].$$
+
+Maximum likelihood estimation involves the computation of the normalisation constant $Z(\theta)$, which is extremely hard to evaluate given the large number of possible structures of this network. Holland and Leinhardt (1981) were the first to develop a log-linear model for network data and tacked this problem by assuming independence in the dyads $(a_{ij}, a_{ji})$, which allows parameter estimation through MLE. One of the proposed methods for estimating parameters in our ERGM network is maximum pseudolikelihood estimation (Strauss and Ikeda, 1990). The pseudolikelihood function is given by the product of the probabilities of the $a_{ij}$, each of these conditioned on the rest of the data. We use the notation $a_{ij}=1$ to indicate the existence of an edge between nodes $i$ and $j$ and $a_{ij}=0$ if they are not connected. We define  $a_{ij}^c$ to be the status of all pairs in $a$ other than $(i,j)$. We also define $a_{ij}^+$ to be the same network as $a$ in the case where $a_{ij}=1$ and $a_{ij}^-$ for $a_{ij}=0$. Conditioned on $A_ij^c=a_ij^c$, A has only two possibilities: $A_{ij}=1$ or $A_{ij}=0$. We approximate the marginal $P(A_{ij}=1)$ by the conditional probability $P(A_{ij}=1|A_{ij}=a_{ij})$. The joint distribution can then be approximated as
+$$
+\begin{aligned}
+P(A|\theta)&\approx \prod_{ij}P(a_{ij}|a_{ij}^c).
+\end{aligned}
+$$
+
+The conditional odds are given by
+$$\frac{P(a_{ij}=1|a_{ij}^c)}{P(a_{ij}=0|a_{ij}^c)}=\exp \left[\theta^t\left(T(a_{ij}^+)-T(a_{ij}^-)\right)\right].$$
+
+Therefore,
+$$\mbox{logit } P(a_{ij}=1|a_{ij}^c)= \theta^t\left[T(a_{ij}^+)-T(a_{ij}^-)\right]=\theta^t \Delta T_{ij},$$
+
+where $\Delta T_{ij}=T(a_{ij}^+)-T(a_{ij}^-)$ is the vector of changes in T(a) when the entry $a_{ij}$ changes from 1 to 0. These conditional probabilities do not involve $Z(\theta)$ so we can maximise the pseudolikelihood function using logistic regression. 
+
 ## Markov Chain Monte Carlo Maximum Likelihood estimation (MCMC-MLE)
+Snijders (2002) introduces a method for estimating $\theta$ based on a Markov Chain Monte Carlo (MCMC) approximation of the MLE. The log-likelihood function is not evaluated directly. Instead, we take log ratios of the likelihood under proposed parameters $\theta$ and initial value of parameters $\theta_0$. We start by re-centering $P(\mbox{A}=a|\theta)=\frac{1}{Z(\theta)}\exp\left[\theta^tT(a)\right]$ around some value $a$ for which $T(a)=0$. Then, the log-likelihood can then be written as:
+$$
+\begin{aligned}
+\mbox{loglik }\theta=\log L(\theta|a) 
+&=\log\exp\left[\theta^tT(a)\right]- \log Z(\theta) \\
+&=\theta^tT(a)- \log Z(\theta)\\
+&=- \log Z(\theta).
+\end{aligned}
+$$
+
 ## The Exchange Algorithm
 The exchange algorithm (\cite{murray2012mcmc}) falls within the class of *auxiliary variable approaches*, which consist in introducing an auxiliary variable $u$ with a well-chosen conditional density $f(u|\theta,x)$ so that the intractable normalizing function cancels out in the Metropolis-Hastings acceptance probability. In the exchange algorithm, the auxiliary variable follows $h(u|\theta^*)/Z(\theta^*)$. Therefore the augmented target is:
 

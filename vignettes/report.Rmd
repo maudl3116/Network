@@ -138,7 +138,16 @@ $$p(Y|\theta)=\sum_Ap(Y|\theta,A)p(A|\theta) $$
 
 ## Pseudolikelihood estimation
 ## Markov Chain Monte Carlo Maximum Likelihood estimation (MCMC-MLE)
-## The exchange algorithm
+## The Exchange Algorithm
+The exchange algorithm (\cite{murray2012mcmc}) falls within the class of *auxiliary variable approaches*, which consist in introducing an auxiliary variable $u$ with a well-chosen conditional density $f(u|\theta,x)$ so that the intractable normalizing function cancels out in the Metropolis-Hastings acceptance probability. In the exchange algorithm, the auxiliary variable follows $h(u|\theta^*)/Z(\theta^*)$. Therefore the augmented target is:
+
+$$\begin{split}\pi(\theta,\theta^*,u|x) & \propto p(\theta)p(x|\theta)q(\theta^*|\theta)p(u|\theta^*) \\ & = p(\theta)\frac{h(x|\theta)}{Z(\theta)}q(\theta^*|\theta)\frac{h(u|\theta^*)}{Z(\theta^*)}\end{split}$$
+
+
+```{r echo=FALSE, fig.align='center', fig.pos="H", out.width = '20%',out.height='20%',fig.cap="\\label{fig:triangle}The augmented model"}
+knitr::include_graphics("exchange.png")
+
+```
 ## The Double Metropolis-Hastings algorithm
 
 # Results
@@ -207,4 +216,5 @@ murray2012mcmc,
 hunter2006,
 park2018bayesian,
 strauss1990pseudolikelihood,
-snijders2002markov}
+snijders2002markov,
+schmid2017exponential}

@@ -230,20 +230,26 @@ knitr::include_graphics("exchange.png")
 
 
 ## The Double Metropolis-Hastings algorithm{-}
+The double Metropolis-Hastings algorithm uses a Metropolis-Hastings sampler to generate $\theta$ draws (outer sampler), and another one to to generate the auxiliary variables (inner sampler). Compared to the exchange algorithm, the auxiliary variable $u$ is now obtained after $m$-MH updates starting from $x$, under $\theta'$. Besides, since the inner sampler update $T_{\theta'}^{m}(u|x)$ satisfies the detailed balance condition
 
+$$h(x|\theta')T_{\theta'}^m(u|x)=h(u|\theta')T_{\theta'}^m(x|u)$$
+
+the acceptance probability of the DMH algorithm is 
+
+$$\alpha = min\left\{1, \frac{p(\theta')T_{\theta'}^{m}(x|u)h(u|\theta_n)q(\theta_n|\theta')}{p(\theta_n)h(x|\theta_n)T_{\theta'}^{m}(u|x)q(\theta'|\theta_n)}\right\}$$
 \begin{algorithm}[H]
  Given $\theta_n \in \Theta$ at the $n^{th}$ iteration \\
  1. Propose $\theta' \sim q(\cdot|\theta_n)$ \\ 
  2. Generate the auxiliary variable using $m$ MH-updates 
  ~~$u \sim T^m_{\theta'}(.|x)$ \\ 
-3. Accept $\theta_{n+1}$ with probability $\alpha = min\left\{1, \frac{p(\theta'){\color{blue}T^m_{\theta'}(x|u)}h(u|\theta_n)q(\theta_n|\theta')}{p(\theta_n)h(x|\theta_n){\color{blue}T^m_{\theta'}(u|x)}q(\theta'|\theta_n)}\right\}$\\
+3. Accept $\theta_{n+1}$ with probability $\alpha = min\left\{1, \frac{p(\theta')T^m_{\theta'}(x|u)h(u|\theta_n)q(\theta_n|\theta')}{p(\theta_n)h(x|\theta_n)T^m_{\theta'}(u|x)q(\theta'|\theta_n)}\right\}$\\
  ~~~~Reject otherwise 
  \caption{Double Metropolis-Hastings algorithm}
 \end{algorithm}
 
 # Results
 
-## Tests on simulated data
+## EM algorithm for noisy observations
 
 **Dataset**
 
@@ -259,7 +265,7 @@ In this section, we propose to validate the model’s estimates using a syntheti
   E <- interact(A,alpha,beta, n,k)
   simulation <- EM(alpha0=0.4, beta0=0.02, rho0=0.15, n, k, E)
 ```
-
+\newpage
 **Results**
 
 In this setting, the stopping criterion is met after `r simulation[5]` `r nIter=simulation[5]` iterations. The figure below, shows the comparison of the ground truth network with the inferred network (obtained by thresholding the posterior probabilities at $t=$ `r t=0.5` `r t`), where the size of the nodes is proportional to their degree.
@@ -291,6 +297,9 @@ par(mfrow=c(1,2))
 F_measure_plot(20, n=100)
 F_measure_networksize(n=100)
 ```
+
+## Exchange algorithm
+## Double Metropolis-Hastings algorithm
 
 # Discussion
 

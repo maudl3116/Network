@@ -55,9 +55,9 @@ exchange <- function(X, COV, mcmc_iter, thetas, a){
 
     if (iter%%100==0){
         print(iter)
-        remove = c(iter:length(thetas[,1]))
-        plot(thetas[-remove,1],type="l")
-        plot(thetas[-remove,2],type="l")
+        #remove = c(iter:length(thetas[,1]))
+        #plot(thetas[-remove,1],type="l")
+        #plot(thetas[-remove,2],type="l")
       }
   } # end iterations
   return(thetas)

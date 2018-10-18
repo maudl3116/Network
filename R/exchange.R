@@ -36,7 +36,7 @@ exchange <- function(X, COV, mcmc_iter, thetas, a){
     log_prior_theta_proposed <- log_prior_theta(proposed_theta,a)
 
 
-    # form the acceptance rate
+    # form the acceptance rate (log scale)
     r <-log_prior_theta_proposed - log_prior_theta_old + log_ratio_u + log_ratio_x
 
     # accept-reject

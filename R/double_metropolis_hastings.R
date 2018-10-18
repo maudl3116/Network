@@ -45,6 +45,10 @@ DMH = function(Y, COV, thetas, mcmc_iter, gibbs_cycles,a){
   return(thetas)
 }
 
+
+#' @param m The number of full pass over Y's components, i.e. the number of Gibbs updates
+#' @param Y The initial graph which is updated m times with Gibbs, to get a draw from the likelihood
+#' @param theta The parameters of the likelihood.
 Gibbs <- function(Y, theta, m){
 
   nrow = nrow(Y)

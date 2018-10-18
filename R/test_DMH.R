@@ -59,6 +59,4 @@ Resultsummary = rbind( t(bmmat(Result)), c(ess(Result[,1]),ess(Result[,2]),ess(R
 save(Resultsummary ,Result, file = "DMH_10000_2.RData")
 
 
-bmmat(Result)
-
 

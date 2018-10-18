@@ -2,16 +2,9 @@
 #'
 #' This script contains different functions to generate graphs from different Exponential Random Graph Models
 
-
-if(!require(igraph)){
-  install.packages("somepackage")
-  library(igraph)
-}
-
 #' This function generates an Erdos Renyi graph, the model used in the paper
 #' @param n The number of nodes in the network
 #' @param p The probability of having an edge at any position (i,j)
-#' @examples
 #' sampleErdosRenyi_function()
 sampleErdosRenyi <- function(n=50,p=0.1){
   g <- erdos.renyi.game(n, p, type = c("gnp"), directed=FALSE, loops=FALSE)
@@ -36,7 +29,6 @@ ERGM <- function(n, param){
 #' @param beta The false positive rate, i.e. the probability of observing an edge at (i,j) when A_{(i,j)}=0
 #' @param n The number of nodes in the network
 #' @param k The number of observations for each pair (i,j)
-#' @examples
 interact <- function(A,alpha=0.6,beta=0.009, n=50,k){
 
   E = matrix(0,n,n)

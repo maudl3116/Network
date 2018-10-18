@@ -2,18 +2,17 @@
 % Please edit documentation in R/data_generator.R
 \name{sampleErdosRenyi}
 \alias{sampleErdosRenyi}
-\title{This function generates an Erdos Renyi graph, the model used in the paper}
+\title{A Data Generator}
 \usage{
 sampleErdosRenyi(n = 50, p = 0.1)
 }
 \arguments{
 \item{n}{The number of nodes in the network}
 
-\item{p}{The probability of having an edge at any position (i,j)}
+\item{p}{The probability of having an edge at any position (i,j)
+sampleErdosRenyi_function()}
 }
 \description{
+This script contains different functions to generate graphs from different Exponential Random Graph Models
 This function generates an Erdos Renyi graph, the model used in the paper
-}
-\examples{
-sampleErdosRenyi_function()
 }

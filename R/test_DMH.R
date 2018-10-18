@@ -13,7 +13,7 @@ plot(g, layout=layout.auto, vertex.size=6, vertex.label=NA, edge.arrow.size=0.2,
 Summary(X)
 summary(formula)
 
-#### Conduct Liang's DMH ###
+#### Conduct Result's DMH ###
 outer = 10000  # was 30,000
 cycle = 20                   # inner sampler is cycle*N(N-1)/2
 
@@ -23,42 +23,42 @@ initial = matrix(runif(4,-a,a),outer+1,4)
 
 
 ptm <- proc.time()
-Liang = DMH(X, COV, initial, outer, cycle,a)
+Result = DMH(X, COV, initial, outer, cycle,a)
 ptme <- proc.time()
 ptme - ptm
 
 
-# analysis results
+# analysis Result
 
 # qualitative analysis
 par(mfrow=c(2,2))
-ts.plot(Liang[,1])
-ts.plot(Liang[,2])
-ts.plot(Liang[,3])
-ts.plot(Liang[,4])
+ts.plot(Result[,1])
+ts.plot(Result[,2])
+ts.plot(Result[,3])
+ts.plot(Result[,4])
 
 par(mfrow=c(2,2))
-hist(Liang[,1])
-hist(Liang[,2])
-hist(Liang[,3])
-hist(Liang[,4])
+hist(Result[,1])
+hist(Result[,2])
+hist(Result[,3])
+hist(Result[,4])
 
 # quantitative analaysis
-bmmat(Liang)  # applies batch means for each parameter trace
-#HPDinterval(as.mcmc(Liang), prob = 0.95)   # ? problem highest probability density intervals
-length(unique(Liang[,1]))/outer
-ess(Liang[,1])  # effective sample size
+bmmat(Result)  # applies batch means for each parameter trace
+#HPDinterval(as.mcmc(Result), prob = 0.95)   # ? problem highest probability density intervals
+length(unique(Result[,1]))/outer
+ess(Result[,1])  # effective sample size
 Ltime = (ptme - ptm)[[1]]
 
 
-# Liangsummary = rbind( t(bmmat(Liang)), HPDinterval(as.mcmc(Liang), prob = 0.95)[,1],
-#                       HPDinterval(as.mcmc(Liang), prob = 0.95)[,2], c(ess(Liang[,1]),ess(Liang[,2]),ess(Liang[,3]),ess(Liang[,4])),
-#                       rep(length(unique(Liang[,1]))/outer,4), rep(Ltime,4))
-Liangsummary = rbind( t(bmmat(Liang)), c(ess(Liang[,1]),ess(Liang[,2]),ess(Liang[,3]),ess(Liang[,4])),
-                      rep(length(unique(Liang[,1]))/outer,4), rep(Ltime,4))
-save(Liangsummary ,Liang, file = "DMH_10000.RData")
+# Resultsummary = rbind( t(bmmat(Result)), HPDinterval(as.mcmc(Result), prob = 0.95)[,1],
+#                       HPDinterval(as.mcmc(Result), prob = 0.95)[,2], c(ess(Result[,1]),ess(Result[,2]),ess(Result[,3]),ess(Result[,4])),
+#                       rep(length(unique(Result[,1]))/outer,4), rep(Ltime,4))
+Resultsummary = rbind( t(bmmat(Result)), c(ess(Result[,1]),ess(Result[,2]),ess(Result[,3]),ess(Result[,4])),
+                      rep(length(unique(Result[,1]))/outer,4), rep(Ltime,4))
+save(Resultsummary ,Result, file = "DMH_10000_2.RData")
 
 
-bmmat(Liang)
+bmmat(Result)
 
 

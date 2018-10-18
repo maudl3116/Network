@@ -1,10 +1,9 @@
-#' This function makes it possible to fit an ergm model (i.e. sample from the posterior distribution on the parameters) using an enhanced MCMC technique.
-#' @param yobs one observation of the network
-#' @param initial_theta The initial guess on the values of the parameters of the ergm model
-#' @param lower_theta Used to bound the possible values of the parameters
-#' @param upper_theta Used to bound the possible values of the parameters
-#' @param mcmc_iter The number of iterations of the MCMC algorithm
-#' @examples
+#' This function makes it possible to fit an ERGM model (i.e. sample from the posterior distribution on the parameters) using an enhanced MCMC technique: the Exchange Algorithm.
+#' @param Y one observation arising from the unknown network structure (must be an adjacency matrix)
+#' @param COV scaling of the random walk.
+#' @param mcmc_iter The number of iterations of the outer Metropolis Hastings sampler
+#' @param thetas a matrix storing the updates of the parameters for each DMH iteration. The first line of the matrix contains the initial values of the parameters.
+#' @param a the scale of the uniform prior for each parameter
 
 exchange <- function(X, COV, mcmc_iter, thetas, a){
 

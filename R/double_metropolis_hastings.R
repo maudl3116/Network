@@ -113,6 +113,8 @@ log_prior_theta <- function(theta,a){
   return(theta_1+theta_2+theta_3+theta_4)
 }
 
+#' This function computes the statistics of the graph A
+#' @param A The adjacency matrix of the graph of which we want to compute the statistics
 Summary=function(A){
   n = nrow(A)
   star = apply(A,1,sum)

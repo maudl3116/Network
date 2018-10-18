@@ -274,8 +274,8 @@ In this setting, the stopping criterion is met after `r simulation[5]` `r nIter=
 ```{r echo=FALSE, fig.pos="H",fig.align="center",out.width='60%',fig.cap="\\label{fig:comparison}(left) Ground truth underlying network (right) Inferred underlying network"}
   out=analyse_results(t,n,k,rho,alpha,beta)
 ```
-\newpage
 
+The following figure displays the convergence of the parameter estimates after 13 iterations, when the criterion is met with a running time of 22ms.
 
 ```{r echo=FALSE,fig.pos="H",fig.height = 2,fig.width=8,fig.align = "center",fig.cap="\\label{fig:figs} Convergence of the parameter estimates"}
 
@@ -287,11 +287,13 @@ plot(m1[,3],type="l",xlab="iteration number",ylab=expression(rho))
 ```
 
 
+We then assess the performance of the algorithm by computing several binary classification metrics involving the number of false positives (FP), false negatives (FN), true positives (TP) and true negatives (TN). 
+
 
 $$
-\centering\begin{tabular}{|c|c|}\hline Precision & `r out$Precision` \\ \hline Recall & `r out$Recall` \\ \hline Accuracy & `r out$Accuracy` \\ \hline F-measure & `r out$F_measure` \\ \hline\end{tabular}$$
+\centering\begin{tabular}{|c|c|c|}\hline Metric & Formula & Result (n=`r n`,k=`r k`) \\ \hline Precision & TP/(TP+FP) & `r out$Precision` \\ \hline Recall & TP/(TP+FN) &`r out$Recall` \\ \hline Accuracy & (TP+TN)/(TP+TN+FP+FN) & `r out$Accuracy` \\ \hline F-measure & 2*((Precision*Recall)/(Precision+Recall)) & `r out$F_measure` \\ \hline\end{tabular}$$
 
-The figure below shows the influence of the number of repeated observations $k$ on the performances of the algorithm. 
+The figure below shows the influence of the number of repeated observations $k$ and the number of nodes $n$ on the performances of the algorithm. We observe how the performance metrics improve by increasing the number of repeated observations $k$, with values close to 1 after $5$ days. Similarly, for fixed $k=5$, an increase in the size of the network yields better estimates of the underlying network.
 
 ```{r echo=FALSE,fig.pos="H",fig.height = 4,fig.width=10,out.width='70%',fig.align = "center",fig.cap="\\label{fig:figs}Performance metrics versus the number of repeated observations k"}
 par(mfrow=c(1,2))
@@ -300,32 +302,36 @@ F_measure_networksize(n=100)
 ```
 
 ## Exchange algorithm
-```{r echo=FALSE,fig.pos="H",fig.height = 4,fig.width=10,fig.align = "center",fig.cap="\\label{fig:exchange}Title"}
+**Dataset**
+
+We have used the Florentine business dataset from the Statnet Package for the Statistical Modeling of Social Networks, a data set of marriage and business ties among 16 Renaissance Florentine families. An ERGM model was fitted with sufficient statistics being the number of edges (with coefficient $\theta_1$), 2-stars ($\theta_2$), 3-stars ($\theta_3$) and triangles ($\theta_4$). 
+
+**Results**
+
+
+The exchange algorithm was run with $10000$ iterations and a random walk proposal with a single parameter $\sigma=0.15$. We chose uniform priors in the interval $[-5, 5]$. The running time was 11 minutes. 
+
+```{r echo=FALSE,fig.pos="H",fig.height = 4,fig.width=10,fig.align = "center",fig.cap="\\label{fig:exchange}Convergence of the parameter estimates for the exchange algorithm"}
 
 env=environment()
 load('ExchangeErgm_10000.RData',env=env)
 Liang = env$Liang
 par(mfrow=c(2,2))
-ts.plot(Liang[,1], ylab="theta1")
-ts.plot(Liang[,2], ylab="theta2")
-ts.plot(Liang[,3], ylab="theta3")
-ts.plot(Liang[,4], ylab="theta4")
-
-
+ts.plot(Liang[,1], ylab="theta1", xlab="Iteration")
+ts.plot(Liang[,2], ylab="theta2", xlab="Iteration")
+ts.plot(Liang[,3], ylab="theta3", xlab="Iteration")
+ts.plot(Liang[,4], ylab="theta4", xlab="Iteration")
 
 ```
 
 
-```{r echo=FALSE,fig.pos="H",fig.height = 4,fig.width=10,fig.align = "center",fig.cap="\\label{fig:exchange}Title"}
+```{r echo=FALSE,fig.pos="H",fig.height = 4,fig.width=10,fig.align = "center",fig.cap="\\label{fig:exchange}Histograms of the Exchanged MCMC samples for the parameters of interest"}
 par(mfrow=c(2,2))
-hist(Liang[,1], main="Historgam of theta1")
-hist(Liang[,2], main="Historgam of theta2")
-hist(Liang[,3], main="Historgam of theta3")
-hist(Liang[,4], main="Historgam of theta4")
+hist(Liang[,1], main="Histogram of theta1", xlab="")
+hist(Liang[,2], main="Histogram of theta2", xlab="")
+hist(Liang[,3], main="Histogram of theta3", xlab="")
+hist(Liang[,4], main="Histogram of theta4", xlab="")
 ```
-## Double Metropolis-Hastings algorithm
-
-# Discussion
 
 \nocite{
 morris2008specification,

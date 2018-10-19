@@ -31,11 +31,12 @@ DMH = function(Y, COV, thetas, mcmc_iter, gibbs_cycles,a){
 
     #log probability ratio to determine acceptance of Outer MCMC
 
-    logprob = log_prior_theta(thetaprop,a)-log_prior_theta(thetaprev,a) + sum(thetaprev*statprop) - sum(thetaprev*stat) + sum(thetaprop*stat) - sum(thetaprop*statprop)
+    logprob = sum(thetaprev*statprop) - sum(thetaprev*stat) + sum(thetaprop*stat) - sum(thetaprop*statprop)
+    #logprob=(thetaprev - thetaprop)*(statprop - stat)
 
     u = log( runif(1) )
 
-    if( u < logprob ){
+    if( u < logprob){
       thetas[iter+1,]=thetaprop
     }else{
       thetas[iter+1,]=thetaprev
@@ -56,8 +57,8 @@ Gibbs <- function(Y, theta, m){
   changestat = numeric(4)
 
   for(l in seq(1:m)){
-    for(i in seq(2:nrow)){
-      for(j in seq(1:i)){ # only working on the lower triangle
+    for(i in (2:nrow)){
+      for(j in (1:(i-1))){ # only working on the lower triangle
 
         if(Y[i,j]==0){  # if we change Y[i,j] from 0 to 1, how will it impact te sufficient statistics ?
           changestat[1] = ( choose(star[i]+1,1) + choose(star[j]+1,1) - choose(star[i],1) - choose(star[j],1) )/2 # edges   (+1 or -1)
@@ -66,14 +67,15 @@ Gibbs <- function(Y, theta, m){
           for(k in seq(1:nrow)){
             changestat[4] = changestat[4] + Y[k,i]*(Y[i,j]+1)*Y[j,k] }                                          # triangles
         }else{   # if we change Y[i,j] from 1 to 0, how will it impact te sufficient statistics ?
-          changestat[1] = ( choose(star[i],1) + choose(star[j],1) - choose(star[i]-1,1) - choose(star[j]-1,1) )/2   # edges
-          changestat[2] =  choose(star[i],2) + choose(star[j],2) - choose(star[i]-1,2) - choose(star[j]-1,2)        # 2-star
-          changestat[3] =  choose(star[i],3) + choose(star[j],3) - choose(star[i]-1,3) - choose(star[j]-1,3)        # 3-star
-          for(k in seq(1:nrow)){
-            changestat[4] = changestat[4] + Y[k,i]*Y[i,j]*Y[j,k] }                                            # triangles
-        }
+           changestat[1] = ( choose(star[i],1) + choose(star[j],1) - choose(star[i]-1,1) - choose(star[j]-1,1) )/2   # edges
+           changestat[2] =  choose(star[i],2) + choose(star[j],2) - choose(star[i]-1,2) - choose(star[j]-1,2)        # 2-star
+           changestat[3] =  choose(star[i],3) + choose(star[j],3) - choose(star[i]-1,3) - choose(star[j]-1,3)        # 3-star
+           for(k in seq(1:nrow)){
+             changestat[4] = changestat[4] + Y[k,i]*Y[i,j]*Y[j,k] }                                            # triangles
+                                           # triangles
+      }
 
-        r =  exp(theta*changestat)
+        r =  exp(sum(theta*changestat))
         changestat = numeric(4)
         p = r[1]/(1+r[1])
         if( runif(1) < p  ){   # with probability  exp(theta*changestat)/(1+exp(theta*changestat))

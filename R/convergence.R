@@ -21,3 +21,5 @@ convergence <- function (N=20, alpha0=0.5, beta0=0.05, rho0=0.2, n=50, k=10){
   parmfrow=c(1,1)
   return(m1[N,])
 }
+
+# testing github university computer
